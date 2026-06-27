@@ -2,14 +2,11 @@ spring:
   application:
     name: ranaswanu
   datasource:
-    url: jdbc:sqlserver://;serverName=localhost;database=test;encrypt=true;trustServerCertificate=true;port=1433;
+    url: jdbc:sqlserver://localhost:1433;databaseName=runaswanna;encrypt=true;trustServerCertificate=true;
     username: sa
     password: Rasintha2002@
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
-
-
-
+      ddl-auto: validate
