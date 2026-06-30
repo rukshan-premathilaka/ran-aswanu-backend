@@ -3,15 +3,20 @@ package com.rukshan.ranaswanu.service;
 import com.rukshan.ranaswanu.dto.request.UserRegistrationDto;
 import com.rukshan.ranaswanu.entities.User;
 import com.rukshan.ranaswanu.repository.UserRepository;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
@@ -34,5 +39,28 @@ public class UserService {
         } catch (DataIntegrityViolationException e) {
             throw new DataIntegrityViolationException("Username or Email already exists");
         }
+    }
+
+    @NonNull
+    @Override
+    public UserDetails loadUserByUsername(@NonNull String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getEmail())
+                .password(user.getPassword())
+                .authorities("ROLE_USER")
+                .accountExpired(!user.isActive())
+                .build();
+    }
+
+    public void login(UserRegistrationDto requestData) {
+        UserDetails userDetails = loadUserByUsername(requestData.getEmail());
+
+        if (!passwordEncoder.matches(requestData.getPassword(), userDetails.getPassword())) {
+            throw new BadCredentialsException("Invalid password");
+        }
+
     }
 }

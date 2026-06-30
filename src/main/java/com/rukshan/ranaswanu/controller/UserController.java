@@ -22,4 +22,10 @@ public class UserController {
         userService.register(requestData);
         return ResponseEntity.ok("Registered Successfully");
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody @Valid UserRegistrationDto requestData) {
+        userService.login(requestData);
+        return ResponseEntity.ok("Login Successfully");
+    }
 }
