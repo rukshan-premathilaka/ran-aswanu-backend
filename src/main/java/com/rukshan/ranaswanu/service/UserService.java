@@ -1,8 +1,10 @@
 package com.rukshan.ranaswanu.service;
 
+import com.rukshan.ranaswanu.dto.request.UserLoginDto;
 import com.rukshan.ranaswanu.dto.request.UserRegistrationDto;
 import com.rukshan.ranaswanu.entities.User;
 import com.rukshan.ranaswanu.repository.UserRepository;
+import com.rukshan.ranaswanu.security.JwtUtil;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -23,6 +25,9 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     public void register(UserRegistrationDto requestData) {
         try {
@@ -55,12 +60,13 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    public void login(UserRegistrationDto requestData) {
+    public String login(UserLoginDto requestData) {
         UserDetails userDetails = loadUserByUsername(requestData.getEmail());
 
         if (!passwordEncoder.matches(requestData.getPassword(), userDetails.getPassword())) {
             throw new BadCredentialsException("Invalid password");
         }
 
+        return jwtUtil.generateToken(userDetails);
     }
 }

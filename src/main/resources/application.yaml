@@ -10,3 +10,8 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: validate
+
+
+jwt:
+  secret: your-very-long-random-secret-key-min-32-chars
+  expiration-ms: 86400000
