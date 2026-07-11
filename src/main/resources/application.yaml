@@ -10,8 +10,32 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: validate
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ranaswanu.co@gmail.com
+    password: yqio qmdn dkya jovy
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  servlet:
+    multipart: # Max file size Spring will accept
+      max-file-size: 5MB
+      max-request-size: 5MB
 
+app:
+  frontend:
+    reset-password-url: http://localhost:5173/reset-password
+
+  upload:
+    dir: uploads  # uploaded files are physically stored on disk
 
 jwt:
   secret: your-very-long-random-secret-key-min-32-chars
   expiration-ms: 86400000
+
+
+

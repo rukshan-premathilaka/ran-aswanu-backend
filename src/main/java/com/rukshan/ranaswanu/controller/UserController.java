@@ -1,7 +1,7 @@
 package com.rukshan.ranaswanu.controller;
 
-import com.rukshan.ranaswanu.dto.request.UserLoginDto;
-import com.rukshan.ranaswanu.dto.request.UserRegistrationDto;
+import com.rukshan.ranaswanu.dto.request.*;
+import com.rukshan.ranaswanu.dto.response.*;
 import com.rukshan.ranaswanu.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,102 +26,91 @@ public class UserController {
     // ---------------- AUTH ----------------
 
     @PostMapping("/auth/register")
-    public ResponseEntity<Map<String, Object>> register(@RequestBody @Valid UserRegistrationDto requestData) {
+    public ResponseEntity<RegisterResponseDto> register(@RequestBody @Valid UserRegistrationDto requestData) {
         userService.register(requestData);
 
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("message", "Registered successfully");
-        response.put("username", requestData.getUsername());
+        RegisterResponseDto response = RegisterResponseDto.builder()
+                .message("Registered successfully")
+                .username(requestData.getUsername())
+                .build();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody @Valid UserLoginDto requestData) {
+    public ResponseEntity<AuthResponseDto> login(@RequestBody @Valid UserLoginDto requestData) {
         String token = userService.login(requestData);
-        return ResponseEntity.ok(Map.of(
-                "token", token,
-                "message", "Login successful"
-        ));
-    }
 
-    @PostMapping("/auth/logout")
-    public ResponseEntity<Map<String, String>> logout(@AuthenticationPrincipal UserDetails userDetails) {
-        Map<String, String> response = new LinkedHashMap<>();
-        response.put("message", "Logout successful");
-        response.put("username", userDetails != null ? userDetails.getUsername() : "unknown");
+        AuthResponseDto response = AuthResponseDto.builder()
+                .token(token)
+                .message("Login successful")
+                .build();
+
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/auth/forgot-password")
-    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> requestData) {
-        String email = requestData.getOrDefault("email", "unknown@example.com");
+    public ResponseEntity<MessageResponseDto> forgotPassword(@RequestBody @Valid ForgotPasswordDto requestData) {
+        userService.forgotPassword(requestData);
 
-        Map<String, String> response = new LinkedHashMap<>();
-        response.put("message", "Password reset link sent to " + email);
-        response.put("email", email);
+        MessageResponseDto response = MessageResponseDto.builder()
+                .message("If an account with that email exists, a reset link has been sent.")
+                .build();
 
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/auth/reset-password")
-    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody Map<String, String> requestData) {
-        Map<String, String> response = new LinkedHashMap<>();
-        response.put("message", "Password reset successful");
-        response.put("token", requestData.getOrDefault("token", "N/A"));
+    public ResponseEntity<MessageResponseDto> resetPassword(@RequestBody @Valid ResetPasswordDto requestData) {
+        userService.resetPassword(requestData);
+
+        MessageResponseDto response = MessageResponseDto.builder()
+                .message("Password reset successful")
+                .build();
 
         return ResponseEntity.ok(response);
     }
 
-    // ---------------- USERS ----------------
+    // ---------------- CURRENT USER (self-service, identified by token) ----------------
 
-    @PutMapping("/users/{userId}/role")
-    public ResponseEntity<Map<String, Object>> updateUserRole(
-            @PathVariable Long userId,
-            @RequestBody Map<String, String> requestData) {
+    @GetMapping("/me")
+    public ResponseEntity<UserProfileDto> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        UserProfileDto profile = userService.getUserProfile(userDetails.getUsername());
+        return ResponseEntity.ok(profile);
+    }
 
-        String newRole = requestData.getOrDefault("role", "FARMER");
+    @PutMapping("/me")
+    public ResponseEntity<UserProfileDto> updateCurrentUser(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody @Valid UpdateProfileDto requestData) {
 
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("userId", userId);
-        response.put("role", newRole);
-        response.put("message", "User role updated successfully");
+        UserProfileDto updated = userService.updateUserProfile(userDetails.getUsername(), requestData);
+        return ResponseEntity.ok(updated);
+    }
 
+    @PutMapping("/me/role")
+    public ResponseEntity<RoleUpdateResponseDto> updateUserRole(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody @Valid UpdateRoleDto requestData) {
+
+        RoleUpdateResponseDto response = userService.updateUserRole(userDetails.getUsername(), requestData.getRole());
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/users/{userId}")
-    public ResponseEntity<Map<String, Object>> getUser(@PathVariable Long userId) {
-        Map<String, Object> user = new LinkedHashMap<>();
-        user.put("userId", userId);
-        user.put("username", "rukshan_farmer");
-        user.put("email", "rukshan@example.com");
-        user.put("role", "FARMER");
-        user.put("phoneNumber", "0771234567");
-        user.put("address", "Badulla, Sri Lanka");
-        user.put("createdAt", "2026-01-15");
+    @PostMapping("/me/picture")
+    public ResponseEntity<ProfilePictureResponseDto> uploadProfilePicture(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam("file") MultipartFile file) {
 
-        return ResponseEntity.ok(user);
+        ProfilePictureResponseDto response = userService.updateProfilePicture(userDetails.getUsername(), file);
+        return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/users/{userId}")
-    public ResponseEntity<Map<String, Object>> updateUser(
-            @PathVariable Long userId,
-            @RequestBody Map<String, Object> requestData) {
-
-        Map<String, Object> updatedUser = new LinkedHashMap<>();
-        updatedUser.put("userId", userId);
-        updatedUser.put("username", requestData.getOrDefault("username", "rukshan_farmer"));
-        updatedUser.put("email", requestData.getOrDefault("email", "rukshan@example.com"));
-        updatedUser.put("phoneNumber", requestData.getOrDefault("phoneNumber", "0771234567"));
-        updatedUser.put("address", requestData.getOrDefault("address", "Badulla, Sri Lanka"));
-        updatedUser.put("message", "User updated successfully");
-
-        return ResponseEntity.ok(updatedUser);
-    }
+    // ---------------- OTHER USERS (public-facing lookups) ----------------
 
     @GetMapping("/users/{userId}/ratings")
     public ResponseEntity<Map<String, Object>> getUserRatings(@PathVariable Long userId) {
+        // TODO: mock data — replace once RatingController/RatingService is wired to real ratings table
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("userId", userId);
         response.put("averageRating", 4.6);
@@ -133,16 +123,6 @@ public class UserController {
         );
 
         response.put("ratings", ratings);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity<Map<String, Object>> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("username", userDetails != null ? userDetails.getUsername() : "unknown");
-        response.put("authorities", userDetails != null ? userDetails.getAuthorities() : List.of());
-        response.put("message", "Currently logged in user");
-
         return ResponseEntity.ok(response);
     }
 

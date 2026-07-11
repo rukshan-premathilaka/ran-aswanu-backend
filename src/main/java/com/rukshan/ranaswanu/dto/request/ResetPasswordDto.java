@@ -4,13 +4,10 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class UserLoginDto {
-
-    private String username;
-
-
-    private String email;
+public class ResetPasswordDto {
+    @NotBlank
+    private String token;
 
     @NotBlank
-    private String password;
+    private String newPassword;
 }

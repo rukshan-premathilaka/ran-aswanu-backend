@@ -1,16 +1,12 @@
 package com.rukshan.ranaswanu.dto.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class UserLoginDto {
-
-    private String username;
-
-
-    private String email;
-
+public class ForgotPasswordDto {
     @NotBlank
-    private String password;
+    @Email
+    private String email;
 }

@@ -34,4 +34,16 @@ public class User {
     @Column(name = "is_active")
     private boolean active;
 
+    @Column(name = "role")
+    private String role;
+
+    @Column(name = "profile_picture")
+    private String ProfilePicture;
+
+    @Column(name = "PhoneNumber")
+    private String PhoneNumber;
+
+    @Column(name="Address")
+    private String Address;
+
 }
