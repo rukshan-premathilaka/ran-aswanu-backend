@@ -166,15 +166,12 @@ public class UserService implements UserDetailsService {
         if (requestData.getEmail() != null && !requestData.getEmail().isBlank()) {
             user.setEmail(requestData.getEmail());
         }
-        // TODO: uncomment once phoneNumber/address columns exist on User entity + DB
-        /*
         if (requestData.getPhoneNumber() != null) {
             user.setPhoneNumber(requestData.getPhoneNumber());
         }
         if (requestData.getAddress() != null) {
             user.setAddress(requestData.getAddress());
         }
-        */
 
         userRepository.save(user);
         return toProfileDto(user);
