@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:sqlserver://localhost:1433;databaseName=runaswanna;encrypt=true;trustServerCertificate=true;
     username: sa
-    password: Rasintha2002@
+    password: sahanandof20030707
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jpa:
     show-sql: true

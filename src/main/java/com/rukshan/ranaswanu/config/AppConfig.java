@@ -33,6 +33,7 @@ public class AppConfig {
                                 "/api/auth/reset-password"
                         ).permitAll()
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/files/**").permitAll()   // <-- add this
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
