@@ -1,4 +1,4 @@
-CREATE TABLE Farm_Activities(
+CREATE TABLE farm_activities(
     activity_id BIGINT IDENTITY(1,1) PRIMARY KEY,
     activity NVARCHAR(500) NOT NULL,
     activity_status BIT DEFAULT 1,
@@ -9,7 +9,7 @@ CREATE TABLE Farm_Activities(
         FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
-CREATE TABLE Expenses(
+CREATE TABLE expenses(
     expense_id BIGINT IDENTITY(1,1) PRIMARY KEY,
     expense_date DATETIME2 DEFAULT GETDATE(),
     title NVARCHAR(50) NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE Expenses(
         FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
-CREATE TABLE Customer_Reviews(
+CREATE TABLE customer_reviews(
     review_id BIGINT IDENTITY(1,1) PRIMARY KEY,
     review_date DATETIME2 DEFAULT GETDATE(),
     description NVARCHAR(500) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE Customer_Reviews(
         FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
-CREATE TABLE Reminders(
+CREATE TABLE reminders(
     reminder_id BIGINT IDENTITY(1,1) PRIMARY KEY,
     reminder_date DATETIME2 NOT NULL DEFAULT GETDATE(),
     description NVARCHAR(500),

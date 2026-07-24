@@ -1,4 +1,4 @@
-package com.rukshan.ranaswanu.dto.response;
+package com.rukshan.ranaswanu.dto.response.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

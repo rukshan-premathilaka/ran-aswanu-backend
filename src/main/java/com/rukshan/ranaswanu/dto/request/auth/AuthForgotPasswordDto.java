@@ -1,11 +1,11 @@
-package com.rukshan.ranaswanu.dto.request;
+package com.rukshan.ranaswanu.dto.request.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class ForgotPasswordDto {
+public class AuthForgotPasswordDto {
     @NotBlank
     @Email
     private String email;

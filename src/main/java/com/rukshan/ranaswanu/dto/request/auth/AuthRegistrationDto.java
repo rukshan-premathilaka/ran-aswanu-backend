@@ -1,11 +1,11 @@
-package com.rukshan.ranaswanu.dto.request;
+package com.rukshan.ranaswanu.dto.request.auth;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class UserRegistrationDto {
+public class AuthRegistrationDto {
 
     @NotBlank(message = "Username is required")
     @Size(min = 1, max = 50, message = "Username must be 3–20 characters")

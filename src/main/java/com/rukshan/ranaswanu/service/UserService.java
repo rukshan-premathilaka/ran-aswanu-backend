@@ -1,10 +1,10 @@
 package com.rukshan.ranaswanu.service;
 
-import com.rukshan.ranaswanu.dto.request.ForgotPasswordDto;
-import com.rukshan.ranaswanu.dto.request.ResetPasswordDto;
+import com.rukshan.ranaswanu.dto.request.auth.AuthForgotPasswordDto;
+import com.rukshan.ranaswanu.dto.request.auth.AuthResetPasswordDto;
 import com.rukshan.ranaswanu.dto.request.UpdateProfileDto;
-import com.rukshan.ranaswanu.dto.request.UserLoginDto;
-import com.rukshan.ranaswanu.dto.request.UserRegistrationDto;
+import com.rukshan.ranaswanu.dto.request.auth.AuthLoginDto;
+import com.rukshan.ranaswanu.dto.request.auth.AuthRegistrationDto;
 import com.rukshan.ranaswanu.dto.response.ProfilePictureResponseDto;
 import com.rukshan.ranaswanu.dto.response.RoleUpdateResponseDto;
 import com.rukshan.ranaswanu.dto.response.UserProfileDto;
@@ -57,7 +57,7 @@ public class UserService implements UserDetailsService {
 
     // ---------------- AUTH ----------------
 
-    public void register(UserRegistrationDto requestData) {
+    public void register(AuthRegistrationDto requestData) {
         User user = User.builder()
                 .name(requestData.getUsername())
                 .email(requestData.getEmail())
@@ -81,7 +81,7 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    public String login(UserLoginDto requestData) {
+    public String login(AuthLoginDto requestData) {
         String identifier = (requestData.getEmail() != null && !requestData.getEmail().isBlank())
                 ? requestData.getEmail()
                 : requestData.getUsername();
@@ -107,7 +107,7 @@ public class UserService implements UserDetailsService {
         return jwtUtil.generateToken(userDetails);
     }
 
-    public void forgotPassword(ForgotPasswordDto requestData) {
+    public void forgotPassword(AuthForgotPasswordDto requestData) {
         Optional<User> userOpt = userRepository.findByEmail(requestData.getEmail());
 
         if (userOpt.isEmpty()) {
@@ -130,7 +130,7 @@ public class UserService implements UserDetailsService {
         emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
     }
 
-    public void resetPassword(ResetPasswordDto requestData) {
+    public void resetPassword(AuthResetPasswordDto requestData) {
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(requestData.getToken())
                 .orElseThrow(() -> new BadCredentialsException("Invalid or expired reset token"));
 

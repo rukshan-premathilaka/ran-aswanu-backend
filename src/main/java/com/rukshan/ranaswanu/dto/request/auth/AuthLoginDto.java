@@ -1,10 +1,10 @@
-package com.rukshan.ranaswanu.dto.request;
+package com.rukshan.ranaswanu.dto.request.auth;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class UserLoginDto {
+public class AuthLoginDto {
 
     private String username;
 

@@ -4,12 +4,16 @@ spring:
   datasource:
     url: jdbc:sqlserver://localhost:1433;databaseName=runaswanna;encrypt=true;trustServerCertificate=true;
     username: sa
-    password: sahanandof20030707
+    password: Rasintha2002@
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: validate
+    properties:
+      hibernate:
+        type:
+          preferred_instant_jdbc_type: TIMESTAMP
   mail:
     host: smtp.gmail.com
     port: 587
