@@ -1,4 +1,4 @@
-CREATE TABLE Notifications(
+CREATE TABLE notifications(
                               notification_id BIGINT IDENTITY(1,1) PRIMARY KEY,
                               message NVARCHAR(255) NOT NULL,
                               title NVARCHAR(50) NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE Notifications(
                                   FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
-CREATE TABLE Deliveries(
+CREATE TABLE deliveries(
                            delivery_id BIGINT IDENTITY(1,1) PRIMARY KEY,
                            delivery_status BIT NOT NULL DEFAULT 0,
                            assigned_date DATETIME2 DEFAULT GETDATE(),
@@ -20,7 +20,7 @@ CREATE TABLE Deliveries(
                            updated_at DATETIME2 DEFAULT GETDATE()
 );
 
-CREATE TABLE Transportation_Requests(
+CREATE TABLE transportation_requests(
                                         transportation_request_id BIGINT IDENTITY(1,1) PRIMARY KEY,
                                         description NVARCHAR(500),
                                         pickup_location NVARCHAR(255) NOT NULL,-- LOOK AFTER it says to store latitude and longitude
@@ -38,10 +38,10 @@ CREATE TABLE Transportation_Requests(
                                         CONSTRAINT FK_Transportation_Requests_users
                                             FOREIGN KEY (user_id) REFERENCES users (user_id),
                                         CONSTRAINT FK_Transportation_Requests_Deliveries
-                                            FOREIGN KEY (delivery_id) REFERENCES Deliveries (delivery_id)
+                                            FOREIGN KEY (delivery_id) REFERENCES deliveries (delivery_id)
 );
 
-CREATE TABLE Orders(
+CREATE TABLE orders(
                        order_id BIGINT IDENTITY(1,1) PRIMARY KEY,
                        order_date_time DATETIME2 NOT NULL DEFAULT GETDATE(),
                        order_status BIT NOT NULL DEFAULT 0,
@@ -58,5 +58,5 @@ CREATE TABLE Orders(
                        CONSTRAINT FK_Orders_users
                            FOREIGN KEY (user_id) REFERENCES users (user_id),
                        CONSTRAINT FK_Orders_Deliveries
-                           FOREIGN KEY (delivery_id) REFERENCES Deliveries (delivery_id)
+                           FOREIGN KEY (delivery_id) REFERENCES deliveries (delivery_id)
 );

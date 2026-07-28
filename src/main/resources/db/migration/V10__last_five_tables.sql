@@ -1,4 +1,4 @@
-CREATE TABLE Chats (
+CREATE TABLE chats (
                        chat_id BIGINT IDENTITY(1,1) PRIMARY KEY,
                        user_one_id BIGINT NOT NULL,
                        user_two_id BIGINT NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE Chats (
                            UNIQUE (user_one_id, user_two_id)
 );
 
-CREATE TABLE Messages (
+CREATE TABLE messages (
                           message_id BIGINT IDENTITY(1,1) PRIMARY KEY,
                           content NVARCHAR(1000) NOT NULL,
                           is_read BIT NOT NULL DEFAULT 0,
@@ -22,10 +22,10 @@ CREATE TABLE Messages (
                           CONSTRAINT FK_Messages_Users
                               FOREIGN KEY (user_id) REFERENCES users (user_id),
                           CONSTRAINT FK_Messages_Chats
-                              FOREIGN KEY (chat_id) REFERENCES Chats (chat_id) ON DELETE CASCADE
+                              FOREIGN KEY (chat_id) REFERENCES chats (chat_id) ON DELETE CASCADE
 );
 
-CREATE TABLE Live_Stocks (
+CREATE TABLE live_stocks (
                              live_stock_id BIGINT IDENTITY(1,1) PRIMARY KEY,
                              category NVARCHAR(100) NOT NULL,
                              breed NVARCHAR(100),
@@ -37,7 +37,7 @@ CREATE TABLE Live_Stocks (
                                  FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
-CREATE TABLE Crops (
+CREATE TABLE crops (
                        crop_id BIGINT IDENTITY(1,1) PRIMARY KEY,
                        crop_name NVARCHAR(255) NOT NULL,
                        category NVARCHAR(100) NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE Crops (
                            FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
-CREATE TABLE Field_Plots (
+CREATE TABLE field_plots (
                              field_plot_id BIGINT IDENTITY(1,1) PRIMARY KEY,
                              current_crop NVARCHAR(255) NOT NULL,
                              crop_variety NVARCHAR(255) NOT NULL ,
@@ -68,5 +68,5 @@ CREATE TABLE Field_Plots (
                              CONSTRAINT FK_FieldPlots_Users
                                  FOREIGN KEY (user_id) REFERENCES users (user_id),
                              CONSTRAINT FK_FieldPlots_Crops
-                                 FOREIGN KEY (crop_id) REFERENCES Crops (crop_id)
+                                 FOREIGN KEY (crop_id) REFERENCES crops (crop_id)
 );

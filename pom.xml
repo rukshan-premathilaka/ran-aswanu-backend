@@ -139,10 +139,10 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>11.14.1</version>
                 <configuration>
-                    <url>jdbc:sqlserver://;serverName=localhost;database=runaswanna;encrypt=true;trustServerCertificate=true;port=1433;</url>
+                    <url>jdbc:sqlserver://;serverName=localhost;database=ranaswanna;encrypt=true;trustServerCertificate=true;port=1433;</url>
                     <user>sa</user>
-                    <password>Rasintha2002@</password>
-                    <cleanDisabled>false</cleanDisabled>
+                    <password>sahanandof20030707</password>
+                    <cleanDisabled>true</cleanDisabled>
                 </configuration>
             </plugin>
         </plugins>
