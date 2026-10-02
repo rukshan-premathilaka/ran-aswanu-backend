@@ -1,10 +1,12 @@
 spring:
   application:
     name: ranaswanu
+  profiles:
+    default: local   # loads application-local.yaml (your own file, not in Git)
   datasource:
     url: jdbc:sqlserver://localhost:1433;databaseName=runaswanna;encrypt=true;trustServerCertificate=true;
-    username: sa
-    password: Rasintha2002@
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD}
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jpa:
     show-sql: true
@@ -18,7 +20,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: ranaswanu.co@gmail.com
-    password: yqio qmdn dkya jovy
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -38,8 +40,5 @@ app:
     dir: uploads  # uploaded files are physically stored on disk
 
 jwt:
-  secret: your-very-long-random-secret-key-min-32-chars
+  secret: ${JWT_SECRET}
   expiration-ms: 86400000
-
-
-

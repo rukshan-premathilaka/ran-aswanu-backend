@@ -38,6 +38,7 @@ public class AppConfig {
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
+
         return http.build();
     }
 }
