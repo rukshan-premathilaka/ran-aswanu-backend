@@ -26,9 +26,12 @@ public class Order {
     @Column(name = "order_date_time", nullable = false)
     private Instant orderDateTime;
 
+    // PENDING | ACCEPTED | REJECTED | SHIPPED | COMPLETED
+    @Size(max = 20)
     @NotNull
-    @Column(name = "order_status", nullable = false)
-    private Boolean orderStatus;
+    @Nationalized
+    @Column(name = "order_status", nullable = false, length = 20)
+    private String orderStatus;
 
     @Size(max = 255)
     @Nationalized
@@ -57,9 +60,12 @@ public class Order {
     @Column(name = "payment_method", nullable = false, length = 100)
     private String paymentMethod;
 
+    // UNPAID | PAID
+    @Size(max = 20)
     @NotNull
-    @Column(name = "payment_status", nullable = false)
-    private Boolean paymentStatus;
+    @Nationalized
+    @Column(name = "payment_status", nullable = false, length = 20)
+    private String paymentStatus;
 
     @Column(name = "created_at")
     private Instant createdAt;
@@ -72,9 +78,9 @@ public class Order {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "delivery_id", nullable = false)
+    // optional: an order exists before a delivery is assigned
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_id")
     private Delivery delivery;
 
     @OneToMany(mappedBy = "order")

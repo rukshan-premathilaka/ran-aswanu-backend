@@ -20,6 +20,7 @@ public class DashboardService {
     @Autowired private ProductListingRepository productListingRepository;
     @Autowired private LiveStockRepository liveStockRepository;
     @Autowired private ExpensRepository expensRepository;
+    @Autowired private OrderRepository orderRepository;
 
     public DashboardSummaryDto getSummary(String farmerEmail) {
         User farmer = userRepository.findByEmail(farmerEmail)
@@ -35,16 +36,9 @@ public class DashboardService {
                 .totalFieldPlots(fieldPlotRepository.countByUserId(id))
                 .totalCrops(cropRepository.countByUserId(id))
                 .activeListings(productListingRepository.countByUserIdAndListingStatusTrue(id))
-                .pendingOrders(countPendingOrders(id))
+                .pendingOrders(orderRepository.countByFarmerAndStatus(id, "PENDING"))
                 .totalLivestock(liveStockRepository.sumAmountByUserId(id))
                 .monthExpenses(expensRepository.sumAmountBetween(id, start, end))
                 .build();
-    }
-
-    // TODO (Step 7): orders are not real yet (Order.orderStatus is still a Boolean).
-    // After the order migration, replace this with a repository query:
-    //   count of orders with status 'PENDING' that contain this farmer's products.
-    private long countPendingOrders(Long farmerId) {
-        return 0;
     }
 }

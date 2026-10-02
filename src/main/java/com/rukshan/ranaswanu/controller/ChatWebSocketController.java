@@ -32,15 +32,10 @@ public class ChatWebSocketController {
         messagingTemplate.convertAndSend("/topic/chat/" + chatId, Optional.of(broadcastMessage));
     }
 
-    // Server pushes a notification to a specific user
+    // Server pushes a saved notification to a specific user (called by NotificationService)
     // Subscribed by client at: /topic/notifications/{userId}
-    public void pushNotification(Long userId, String type, String content) {
-        Map<String, Object> notification = new LinkedHashMap<>();
-        notification.put("userId", userId);
-        notification.put("type", type);
-        notification.put("content", content);
-        notification.put("createdAt", LocalDateTime.now().toString());
-
-        messagingTemplate.convertAndSend("/topic/notifications/" + userId, Optional.of(notification));
+    // Payload: { notificationId, title, message, isRead, createdAt }
+    public void pushNotification(Long userId, Object notification) {
+        messagingTemplate.convertAndSend("/topic/notifications/" + userId, notification);
     }
 }

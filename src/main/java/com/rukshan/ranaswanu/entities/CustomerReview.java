@@ -22,6 +22,7 @@ public class CustomerReview {
     @Column(name = "review_date")
     private Instant reviewDate;
 
+    // The column is NOT NULL, so an empty comment is saved as ""
     @Size(max = 500)
     @NotNull
     @Nationalized
@@ -38,10 +39,19 @@ public class CustomerReview {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    // The person BEING rated (the farmer)
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    // The person who wrote the review (the buyer). Null only for old rows.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reviewer_id")
+    private User reviewer;
 
+    // The order this review is about. Null only for old rows.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Order order;
 }
