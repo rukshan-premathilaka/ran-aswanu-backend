@@ -91,6 +91,10 @@ public class UserService {
         User user = userRepository.findByEmailOrName(identifier, identifier)
                 .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
+        if (!user.isActive()) {
+            throw new BadCredentialsException("Invalid email or password");
+        }
+
         if (!passwordEncoder.matches(requestData.getPassword(), user.getPassword())) {
             throw new BadCredentialsException("Invalid email or password");
         }
@@ -99,7 +103,8 @@ public class UserService {
                 .withUsername(user.getEmail())
                 .password(user.getPassword())
                 .authorities("ROLE_USER")
-                .accountExpired(!user.isActive())
+                .accountExpired(false)
+                .disabled(false)
                 .build();
 
         return jwtUtil.generateToken(userDetails);

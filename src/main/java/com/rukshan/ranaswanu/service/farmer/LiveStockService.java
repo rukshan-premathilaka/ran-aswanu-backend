@@ -45,6 +45,21 @@ public class LiveStockService {
         return toResponseDto(stock);
     }
 
+    // Updates only the logged-in farmer's livestock record so ownership cannot be bypassed.
+    public LiveStockResponseDto update(String farmerEmail, Long liveStockId, LiveStockRequestDto requestData) {
+        User farmer = requireUser(farmerEmail);
+        LiveStock stock = liveStockRepository.findByIdAndUserId(liveStockId, farmer.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Livestock record not found"));
+
+        stock.setCategory(requestData.getCategory());
+        stock.setBreed(requestData.getBreed());
+        stock.setAmount(requestData.getAmount());
+        stock.setUpdatedAt(Instant.now());
+
+        liveStockRepository.save(stock);
+        return toResponseDto(stock);
+    }
+
     public void delete(String farmerEmail, Long liveStockId) {
         User farmer = requireUser(farmerEmail);
         LiveStock stock = liveStockRepository.findByIdAndUserId(liveStockId, farmer.getId())

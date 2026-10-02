@@ -134,6 +134,22 @@ public class FarmerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(expenseService.create(userDetails.getUsername(), requestData));
     }
 
+    @PutMapping("/expenses/{expenseId}")
+    public ResponseEntity<ExpenseResponseDto> updateExpense(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long expenseId,
+            @RequestBody @Valid ExpenseRequestDto requestData) {
+        return ResponseEntity.ok(expenseService.update(userDetails.getUsername(), expenseId, requestData));
+    }
+
+    @DeleteMapping("/expenses/{expenseId}")
+    public ResponseEntity<Void> deleteExpense(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long expenseId) {
+        expenseService.delete(userDetails.getUsername(), expenseId);
+        return ResponseEntity.noContent().build();
+    }
+
     // ---------------- LIVESTOCK ----------------
 
     @GetMapping("/livestock")
@@ -146,6 +162,14 @@ public class FarmerController {
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody @Valid LiveStockRequestDto requestData) {
         return ResponseEntity.status(HttpStatus.CREATED).body(liveStockService.create(userDetails.getUsername(), requestData));
+    }
+
+    @PutMapping("/livestock/{liveStockId}")
+    public ResponseEntity<LiveStockResponseDto> updateLiveStock(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long liveStockId,
+            @RequestBody @Valid LiveStockRequestDto requestData) {
+        return ResponseEntity.ok(liveStockService.update(userDetails.getUsername(), liveStockId, requestData));
     }
 
     @DeleteMapping("/livestock/{liveStockId}")

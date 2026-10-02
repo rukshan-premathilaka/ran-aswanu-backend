@@ -45,6 +45,32 @@ public class ExpenseService {
         return toResponseDto(expense);
     }
 
+    // Updates only the logged-in farmer's expense so another farmer's record cannot be changed.
+    public ExpenseResponseDto update(String farmerEmail, Long expenseId, ExpenseRequestDto requestData) {
+        User farmer = requireUser(farmerEmail);
+        Expense expense = expenseRepository.findByIdAndUserId(expenseId, farmer.getId())
+                .orElseThrow(() -> new com.rukshan.ranaswanu.exception.ResourceNotFoundException("Expense not found"));
+
+        expense.setTitle(requestData.getTitle());
+        expense.setCategory(requestData.getCategory());
+        expense.setAmount(requestData.getAmount());
+        if (requestData.getExpenseDate() != null) {
+            expense.setExpenseDate(requestData.getExpenseDate());
+        }
+        expense.setUpdatedAt(Instant.now());
+
+        expenseRepository.save(expense);
+        return toResponseDto(expense);
+    }
+
+    // Deletes only the logged-in farmer's expense and returns 404 for someone else's record.
+    public void delete(String farmerEmail, Long expenseId) {
+        User farmer = requireUser(farmerEmail);
+        Expense expense = expenseRepository.findByIdAndUserId(expenseId, farmer.getId())
+                .orElseThrow(() -> new com.rukshan.ranaswanu.exception.ResourceNotFoundException("Expense not found"));
+        expenseRepository.delete(expense);
+    }
+
     private User requireUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));

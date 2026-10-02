@@ -2,6 +2,7 @@ package com.rukshan.ranaswanu.dto.request.farmer;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ public class CropRequestDto {
     private String unit;
 
     @NotNull(message = "Harvest quantity is required")
+    @Positive(message = "Harvest quantity must be above 0")
     private BigDecimal harvestQuantity;
 
     @NotNull(message = "Harvest date is required")

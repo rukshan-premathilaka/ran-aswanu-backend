@@ -27,7 +27,8 @@ public class AuthImpl implements UserDetailsService {
                 .withUsername(user.getEmail())
                 .password(user.getPassword())
                 .authorities(user.getRole() == null ? "ROLE_USER" : "ROLE_" + user.getRole())
-                .accountExpired(!user.isActive())
+                .accountExpired(false)
+                .disabled(!user.isActive())
                 .build();
     }
 }

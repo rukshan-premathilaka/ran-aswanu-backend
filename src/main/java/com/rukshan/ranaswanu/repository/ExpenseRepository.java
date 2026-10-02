@@ -8,9 +8,11 @@ import org.springframework.data.repository.query.Param;
 import java.time.Instant;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     List<Expense> findByUserIdOrderByExpenseDateDesc(Long userId);
+    Optional<Expense> findByIdAndUserId(Long id, Long userId);
 
     // dashboard: total spent between two moments (start inclusive, end exclusive)
     @Query("select coalesce(sum(e.amount), 0L) from Expense e " +

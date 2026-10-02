@@ -40,10 +40,10 @@ public class User {
     @Column(name = "profile_picture")
     private String ProfilePicture;
 
-    @Column(name = "PhoneNumber")
-    private String PhoneNumber;
+    @Column(name = "phone_number")
+    private String phoneNumber;
 
-    @Column(name="Address")
-    private String Address;
+    @Column(name = "address")
+    private String address;
 
 }

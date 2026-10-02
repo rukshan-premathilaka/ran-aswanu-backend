@@ -102,9 +102,17 @@ public class DeliveryService {
     @Transactional
     public JoinDeliveryResponseDto join(String email, Long requestId, JoinDeliveryRequestDto request) {
         User me = requireUser(email);
-        TransportationRequest mine = transportationRequestRepository.findByIdAndUser_Id(requestId, me.getId())
+        Long otherRequestId = request.getWithRequestId();
+        TransportationRequest first = transportationRequestRepository.findByIdForUpdate(Math.min(requestId, otherRequestId))
                 .orElseThrow(() -> new ResourceNotFoundException("Delivery request not found"));
+        TransportationRequest second = transportationRequestRepository.findByIdForUpdate(Math.max(requestId, otherRequestId))
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery request not found"));
+        TransportationRequest mine = requestId.equals(first.getId()) ? first : second;
+        TransportationRequest other = requestId.equals(first.getId()) ? second : first;
 
+        if (!mine.getUser().getId().equals(me.getId())) {
+            throw new ResourceNotFoundException("Delivery request not found");
+        }
         if (!OPEN.equals(mine.getRequestStatus())) {
             if (mine.getDelivery() != null) {
                 throw new ConflictException("You already joined this delivery");
@@ -112,14 +120,15 @@ public class DeliveryService {
             throw new ConflictException("This request is no longer open");
         }
 
-        TransportationRequest other = transportationRequestRepository.findById(request.getWithRequestId())
-                .orElseThrow(() -> new ResourceNotFoundException("Delivery request not found"));
-
         if (other.getUser().getId().equals(me.getId())) {
             throw new IllegalArgumentException("You cannot join your own request");
         }
         if (!OPEN.equals(other.getRequestStatus()) || other.getDelivery() != null) {
             throw new ConflictException("This request is no longer open");
+        }
+
+        if (calculateMatchScore(mine, other) < 0.5) {
+            throw new IllegalArgumentException("These delivery requests do not meet the matching requirements.");
         }
 
         Instant now = Instant.now();
@@ -193,10 +202,7 @@ public class DeliveryService {
 
     // Calculate the match score required by the shared-delivery contract.
     private DeliveryMatchResponseDto toMatch(TransportationRequest mine, TransportationRequest candidate) {
-        double score = 0.0;
-        if (sameText(mine.getDeliveryLocation(), candidate.getDeliveryLocation())) score += 0.5;
-        if (sameText(mine.getPickupLocation(), candidate.getPickupLocation())) score += 0.3;
-        if (sameDay(mine.getRequestedDateTime(), candidate.getRequestedDateTime())) score += 0.2;
+        double score = calculateMatchScore(mine, candidate);
 
         return DeliveryMatchResponseDto.builder()
                 .requestId(candidate.getId())
@@ -249,6 +255,14 @@ public class DeliveryService {
 
     private int estimateSavingPercent(long requestCount) {
         return (int) Math.round(100.0 - (100.0 / requestCount));
+    }
+
+    private double calculateMatchScore(TransportationRequest first, TransportationRequest second) {
+        double score = 0.0;
+        if (sameText(first.getDeliveryLocation(), second.getDeliveryLocation())) score += 0.5;
+        if (sameText(first.getPickupLocation(), second.getPickupLocation())) score += 0.3;
+        if (sameDay(first.getRequestedDateTime(), second.getRequestedDateTime())) score += 0.2;
+        return score;
     }
 
     private boolean sameText(String first, String second) {
