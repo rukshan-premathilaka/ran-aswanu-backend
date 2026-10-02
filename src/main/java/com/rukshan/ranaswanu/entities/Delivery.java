@@ -1,7 +1,6 @@
 package com.rukshan.ranaswanu.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,9 +20,9 @@ public class Delivery {
     @Column(name = "delivery_id", nullable = false)
     private Long id;
 
-    @NotNull
-    @Column(name = "delivery_status", nullable = false)
-    private Boolean deliveryStatus;
+    @Column(name = "delivery_status", nullable = false, length = 20)
+    @Nationalized
+    private String deliveryStatus;
 
     @Column(name = "assigned_date")
     private Instant assignedDate;
@@ -50,6 +49,4 @@ public class Delivery {
 
     @OneToMany(mappedBy = "delivery")
     private Set<TransportationRequest> transportationRequests = new LinkedHashSet<>();
-
-
 }

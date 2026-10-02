@@ -51,8 +51,9 @@ public class TransportationRequest {
     private Long estimatedWeight;
 
     @NotNull
-    @Column(name = "request_status", nullable = false)
-    private Boolean requestStatus;
+    @Nationalized
+    @Column(name = "request_status", nullable = false, length = 20)
+    private String requestStatus;
 
     @Size(max = 500)
     @Nationalized
@@ -76,10 +77,7 @@ public class TransportationRequest {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "delivery_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "delivery_id")
     private Delivery delivery;
-
-
 }
