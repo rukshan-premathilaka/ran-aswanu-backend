@@ -33,8 +33,15 @@ public class AppConfig {
                         // no / bad / expired token -> 401 with a readable message
                         .authenticationEntryPoint((req, res, e) ->
                                 ApiErrorWriter.write(res, 401, "Please log in again."))
-                        .accessDeniedHandler((req, res, e) ->
-                                ApiErrorWriter.write(res, 403, "You do not have permission to do this.")))
+                        .accessDeniedHandler((req, res, e) -> {
+                            String uri = req.getRequestURI();
+                            String message = uri.startsWith("/api/farmer/")
+                                    ? "Only farmers can access this resource."
+                                    : uri.startsWith("/api/buyer/")
+                                    ? "Only buyers can access this resource."
+                                    : "You do not have permission to do this.";
+                            ApiErrorWriter.write(res, 403, message);
+                        }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
@@ -44,6 +51,8 @@ public class AppConfig {
                                 "/api/auth/reset-password"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/*").permitAll()
+                        .requestMatchers("/api/farmer/**").hasRole("FARMER")
+                        .requestMatchers("/api/buyer/**").hasRole("BUYER")
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/files/**").permitAll()
                         .anyRequest().authenticated()

@@ -26,7 +26,7 @@ public class AuthImpl implements UserDetailsService {
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
                 .password(user.getPassword())
-                .authorities("ROLE_USER")
+                .authorities(user.getRole() == null ? "ROLE_USER" : "ROLE_" + user.getRole())
                 .accountExpired(!user.isActive())
                 .build();
     }

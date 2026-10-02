@@ -2,9 +2,9 @@ package com.rukshan.ranaswanu.service.farmer;
 
 import com.rukshan.ranaswanu.dto.request.farmer.ExpenseRequestDto;
 import com.rukshan.ranaswanu.dto.response.farmer.ExpenseResponseDto;
-import com.rukshan.ranaswanu.entities.Expens;
+import com.rukshan.ranaswanu.entities.Expense;
 import com.rukshan.ranaswanu.entities.User;
-import com.rukshan.ranaswanu.repository.ExpensRepository;
+import com.rukshan.ranaswanu.repository.ExpenseRepository;
 import com.rukshan.ranaswanu.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,14 +17,14 @@ import java.util.List;
 public class ExpenseService {
 
     @Autowired
-    private ExpensRepository expensRepository;
+    private ExpenseRepository expenseRepository;
 
     @Autowired
     private UserRepository userRepository;
 
     public List<ExpenseResponseDto> listMine(String farmerEmail) {
         User farmer = requireUser(farmerEmail);
-        return expensRepository.findByUserIdOrderByExpenseDateDesc(farmer.getId()).stream()
+        return expenseRepository.findByUserIdOrderByExpenseDateDesc(farmer.getId()).stream()
                 .map(this::toResponseDto)
                 .toList();
     }
@@ -32,7 +32,7 @@ public class ExpenseService {
     public ExpenseResponseDto create(String farmerEmail, ExpenseRequestDto requestData) {
         User farmer = requireUser(farmerEmail);
 
-        Expens expense = new Expens();
+        Expense expense = new Expense();
         expense.setUser(farmer);
         expense.setTitle(requestData.getTitle());
         expense.setCategory(requestData.getCategory());
@@ -41,7 +41,7 @@ public class ExpenseService {
         expense.setCreatedAt(Instant.now());
         expense.setUpdatedAt(Instant.now());
 
-        expensRepository.save(expense);
+        expenseRepository.save(expense);
         return toResponseDto(expense);
     }
 
@@ -50,7 +50,7 @@ public class ExpenseService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
     }
 
-    private ExpenseResponseDto toResponseDto(Expens expense) {
+    private ExpenseResponseDto toResponseDto(Expense expense) {
         return ExpenseResponseDto.builder()
                 .expenseId(expense.getId())
                 .title(expense.getTitle())

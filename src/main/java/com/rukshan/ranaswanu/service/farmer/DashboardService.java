@@ -19,7 +19,7 @@ public class DashboardService {
     @Autowired private CropRepository cropRepository;
     @Autowired private ProductListingRepository productListingRepository;
     @Autowired private LiveStockRepository liveStockRepository;
-    @Autowired private ExpensRepository expensRepository;
+    @Autowired private ExpenseRepository expenseRepository;
     @Autowired private OrderRepository orderRepository;
 
     public DashboardSummaryDto getSummary(String farmerEmail) {
@@ -38,7 +38,7 @@ public class DashboardService {
                 .activeListings(productListingRepository.countByUserIdAndListingStatusTrue(id))
                 .pendingOrders(orderRepository.countByFarmerAndStatus(id, "PENDING"))
                 .totalLivestock(liveStockRepository.sumAmountByUserId(id))
-                .monthExpenses(expensRepository.sumAmountBetween(id, start, end))
+                .monthExpenses(expenseRepository.sumAmountBetween(id, start, end))
                 .build();
     }
 }
