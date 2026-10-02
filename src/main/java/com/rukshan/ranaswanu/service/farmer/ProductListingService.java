@@ -85,25 +85,32 @@ public class ProductListingService {
     // ---------------- PUBLIC BROWSE ----------------
 
     public List<ProductListingResponseDto> browsePublished(String category, String keyword) {
-        List<ProductListing> listings;
+        boolean hasCategory = category != null && !category.isBlank();
+        boolean hasKeyword = keyword != null && !keyword.isBlank();
+        String cat = hasCategory ? category.trim() : null;
+        String key = hasKeyword ? keyword.trim() : null;
 
-        if (keyword != null && !keyword.isBlank()) {
-            listings = productListingRepository.findByProductNameContainingIgnoreCase(keyword);
-        } else if (category != null && !category.isBlank()) {
-            listings = productListingRepository.findByCategoryIgnoreCase(category);
+        List<ProductListing> listings;
+        if (hasCategory && hasKeyword) {
+            // both filters together
+            listings = productListingRepository
+                    .findByListingStatusTrueAndCategoryIgnoreCaseAndProductNameContainingIgnoreCase(cat, key);
+        } else if (hasCategory) {
+            listings = productListingRepository.findByListingStatusTrueAndCategoryIgnoreCase(cat);
+        } else if (hasKeyword) {
+            listings = productListingRepository.findByListingStatusTrueAndProductNameContainingIgnoreCase(key);
         } else {
-            listings = productListingRepository.findAll();
+            listings = productListingRepository.findByListingStatusTrue();
         }
 
-        return listings.stream()
-                .filter(l -> Boolean.TRUE.equals(l.getListingStatus()))
-                .map(this::toResponseDto)
-                .toList();
+        return listings.stream().map(this::toResponseDto).toList();
     }
 
     public ProductListingResponseDto getById(Long listId) {
+        // Unpublished (draft) products look the same as missing ones: 404
         ProductListing listing = productListingRepository.findById(listId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product listing not found"));
+                .filter(l -> Boolean.TRUE.equals(l.getListingStatus()))
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         return toResponseDto(listing);
     }
 
@@ -151,7 +158,7 @@ public class ProductListingService {
                 .minimumOrderQuantity(listing.getMinimumOrderQuantity())
                 .harvestedDate(listing.getHarvestedDate())
                 .deliveryOption(listing.getDeliveryOption())
-                .productImage(listing.getProductImage())
+                .productImage(listing.getProductImage() != null ? "/files/" + listing.getProductImage() : null)
                 .listingStatus(listing.getListingStatus())
                 .createdAt(listing.getCreatedAt())
                 .updatedAt(listing.getUpdatedAt())

@@ -1,6 +1,7 @@
 package com.rukshan.ranaswanu.controller;
 
 import com.rukshan.ranaswanu.dto.request.farmer.ProductListingRequestDto;
+import com.rukshan.ranaswanu.dto.request.farmer.ProductStatusRequestDto;
 import com.rukshan.ranaswanu.dto.response.farmer.ProductListingResponseDto;
 import com.rukshan.ranaswanu.service.farmer.ProductListingService;
 import jakarta.validation.Valid;
@@ -65,10 +66,14 @@ public class ProductController {
     public ResponseEntity<ProductListingResponseDto> updateProductStatus(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long listId,
-            @RequestBody java.util.Map<String, Boolean> requestData) {
+            @RequestBody ProductStatusRequestDto requestData) {
 
-        boolean published = Boolean.TRUE.equals(requestData.get("published"));
-        return ResponseEntity.ok(productListingService.setPublished(userDetails.getUsername(), listId, published));
+        // A missing "published" must not silently become false
+        if (requestData.getPublished() == null) {
+            throw new IllegalArgumentException("published is required (true or false)");
+        }
+        return ResponseEntity.ok(productListingService.setPublished(
+                userDetails.getUsername(), listId, requestData.getPublished()));
     }
 
     @DeleteMapping("/farmer/products/{listId}")

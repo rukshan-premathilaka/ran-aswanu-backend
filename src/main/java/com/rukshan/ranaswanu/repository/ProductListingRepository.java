@@ -11,4 +11,12 @@ public interface ProductListingRepository extends JpaRepository<ProductListing, 
     Optional<ProductListing> findByIdAndUserId(Long id, Long userId);
     List<ProductListing> findByCategoryIgnoreCase(String category);
     List<ProductListing> findByProductNameContainingIgnoreCase(String keyword);
+
+    // Public browse: only published products (listingStatus = true)
+    List<ProductListing> findByListingStatusTrue();
+    long countByUserIdAndListingStatusTrue(Long userId); // dashboard: active listings
+    List<ProductListing> findByListingStatusTrueAndCategoryIgnoreCase(String category);
+    List<ProductListing> findByListingStatusTrueAndProductNameContainingIgnoreCase(String keyword);
+    List<ProductListing> findByListingStatusTrueAndCategoryIgnoreCaseAndProductNameContainingIgnoreCase(
+            String category, String keyword);
 }

@@ -10,4 +10,5 @@ public interface FieldPlotRepository extends JpaRepository<FieldPlot, Long> {
     List<FieldPlot> findByUserId(Long userId);
     Optional<FieldPlot> findByIdAndUserId(Long id, Long userId);
     Optional<FieldPlot> findByCropIdAndUserId(Long cropId, Long userId);
+    long countByUserId(Long userId);
 }

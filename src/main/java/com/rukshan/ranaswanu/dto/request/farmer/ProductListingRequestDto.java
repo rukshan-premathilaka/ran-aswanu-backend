@@ -9,31 +9,34 @@ import java.time.Instant;
 @Data
 public class ProductListingRequestDto {
 
-    @NotBlank
+    @NotBlank(message = "Product name is required")
     private String productName;
 
-    @NotBlank
+    @NotBlank(message = "Category is required")
     private String category;
 
+    @Size(max = 500, message = "Description must be 500 characters or fewer")
     private String description;
 
-    @NotBlank
-    private String unitOfMeasurement; // matches ProductListing.unitOfMeasurement
+    @NotBlank(message = "Unit of measurement is required")
+    @Size(max = 10, message = "Unit must be 10 characters or fewer")
+    private String unitOfMeasurement; // example: kg
 
-    @NotNull
-    @DecimalMin(value = "0.0", inclusive = false)
+    @NotNull(message = "Price is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Price must be above 0")
     private BigDecimal pricePerUnit;
 
-    @NotNull
-    @DecimalMin(value = "0.0")
+    @NotNull(message = "Available stock is required")
+    @DecimalMin(value = "0.0", message = "Available stock cannot be negative")
     private BigDecimal availableStock;
 
-    @NotNull
-    @DecimalMin(value = "0.0")
+    @NotNull(message = "Minimum order quantity is required")
+    @DecimalMin(value = "0.0", message = "Minimum order quantity cannot be negative")
     private BigDecimal minimumOrderQuantity;
 
     private Instant harvestedDate;
 
-    @NotBlank
-    private String deliveryOption; // Pickup | Delivery | Both
+    @NotBlank(message = "Delivery option is required")
+    @Pattern(regexp = "Pickup|Delivery|Both", message = "Delivery option must be Pickup, Delivery or Both")
+    private String deliveryOption;
 }

@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface CropRepository extends JpaRepository<Crop, Long> {
     List<Crop> findByUserId(Long userId);
     Optional<Crop> findByIdAndUserId(Long id, Long userId);
+    long countByUserId(Long userId);
 }
