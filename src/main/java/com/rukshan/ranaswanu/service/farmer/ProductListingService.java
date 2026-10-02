@@ -8,6 +8,7 @@ import com.rukshan.ranaswanu.repository.ProductListingRepository;
 import com.rukshan.ranaswanu.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
+import com.rukshan.ranaswanu.exception.ResourceNotFoundException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -102,7 +103,7 @@ public class ProductListingService {
 
     public ProductListingResponseDto getById(Long listId) {
         ProductListing listing = productListingRepository.findById(listId)
-                .orElseThrow(() -> new IllegalArgumentException("Product listing not found: " + listId));
+                .orElseThrow(() -> new ResourceNotFoundException("Product listing not found"));
         return toResponseDto(listing);
     }
 
@@ -133,7 +134,7 @@ public class ProductListingService {
         User farmer = requireFarmer(farmerEmail);
         return productListingRepository.findById(listId)
                 .filter(l -> l.getUser().getId().equals(farmer.getId()))
-                .orElseThrow(() -> new AccessDeniedException("Listing not found or not owned by this farmer"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product listing not found"));
     }
 
     private ProductListingResponseDto toResponseDto(ProductListing listing) {

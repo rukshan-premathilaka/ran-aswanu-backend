@@ -104,6 +104,22 @@ public class FarmerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(farmActivityService.create(userDetails.getUsername(), requestData));
     }
 
+    @PatchMapping("/activities/{activityId}/status")
+    public ResponseEntity<FarmActivityResponseDto> updateActivityStatus(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long activityId,
+            @RequestBody @Valid ActivityStatusRequestDto requestData) {
+        return ResponseEntity.ok(farmActivityService.updateStatus(userDetails.getUsername(), activityId, requestData.getDone()));
+    }
+
+    @DeleteMapping("/activities/{activityId}")
+    public ResponseEntity<Void> deleteActivity(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long activityId) {
+        farmActivityService.delete(userDetails.getUsername(), activityId);
+        return ResponseEntity.noContent().build();
+    }
+
     // ---------------- EXPENSES ----------------
 
     @GetMapping("/expenses")

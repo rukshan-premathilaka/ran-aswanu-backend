@@ -1,5 +1,6 @@
 package com.rukshan.ranaswanu.service;
 
+import com.rukshan.ranaswanu.exception.FileStorageException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -47,7 +48,7 @@ public class FileStorageService {
             return subFolder + "/" + uniqueFilename;
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to store file: " + originalFilenameSafe(file), e);
+            throw new FileStorageException("We could not save the file. Please try again.", e);
         }
     }
 
@@ -58,7 +59,7 @@ public class FileStorageService {
             Path filePath = Paths.get(uploadDir, relativePath).toAbsolutePath().normalize();
             Files.deleteIfExists(filePath);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to delete file: " + relativePath, e);
+            throw new FileStorageException("We could not replace the old file. Please try again.", e);
         }
     }
 

@@ -1,12 +1,15 @@
 package com.rukshan.ranaswanu.security;
 
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.time.Instant;
 
-// Writes a Shape B error for errors raised before a controller is reached
+// Writes a Shape B error for errors raised before a controller is reached (401 / 403)
 public final class ApiErrorWriter {
-    private ApiErrorWriter() {}
+
+    private ApiErrorWriter() {
+    }
 
     public static void write(HttpServletResponse response, int status, String message) throws IOException {
         response.setStatus(status);

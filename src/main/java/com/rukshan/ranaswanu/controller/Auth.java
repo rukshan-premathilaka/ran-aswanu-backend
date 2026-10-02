@@ -29,7 +29,7 @@ public class Auth {
         userService.register(requestData);
 
         RegisterResponseDto response = RegisterResponseDto.builder()
-                .message("Registered successfully")
+                .message("User registered successfully")
                 .username(requestData.getUsername())
                 .build();
 
@@ -53,7 +53,7 @@ public class Auth {
         userService.forgotPassword(requestData);
 
         MessageResponseDto response = MessageResponseDto.builder()
-                .message("If an account with that email exists, a reset link has been sent.")
+                .message("If this email is registered, a reset link has been sent.")
                 .build();
 
         return ResponseEntity.ok(response);

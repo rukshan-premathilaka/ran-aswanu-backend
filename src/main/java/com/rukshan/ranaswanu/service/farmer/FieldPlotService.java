@@ -5,11 +5,11 @@ import com.rukshan.ranaswanu.dto.response.farmer.FieldPlotResponseDto;
 import com.rukshan.ranaswanu.entities.Crop;
 import com.rukshan.ranaswanu.entities.FieldPlot;
 import com.rukshan.ranaswanu.entities.User;
+import com.rukshan.ranaswanu.exception.ResourceNotFoundException;
 import com.rukshan.ranaswanu.repository.CropRepository;
 import com.rukshan.ranaswanu.repository.FieldPlotRepository;
 import com.rukshan.ranaswanu.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -36,14 +36,13 @@ public class FieldPlotService {
                 .toList();
     }
 
+    // Creates a plot; the harvest record (cropId) is optional
     public FieldPlotResponseDto create(String farmerEmail, FieldPlotRequestDto requestData) {
         User farmer = requireUser(farmerEmail);
-        Crop crop = cropRepository.findByIdAndUserId(requestData.getCropId(), farmer.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Crop not found or not owned by this farmer"));
 
         FieldPlot plot = new FieldPlot();
         plot.setUser(farmer);
-        plot.setCrop(crop);
+        plot.setCrop(findCropOrNull(requestData.getCropId(), farmer));
         applyFields(plot, requestData);
         plot.setCreatedAt(Instant.now());
         plot.setUpdatedAt(Instant.now());
@@ -52,8 +51,12 @@ public class FieldPlotService {
         return toResponseDto(plot);
     }
 
+    // Updates a plot; the crop link changes only when a cropId is sent
     public FieldPlotResponseDto update(String farmerEmail, Long fieldPlotId, FieldPlotRequestDto requestData) {
         FieldPlot plot = findOwned(farmerEmail, fieldPlotId);
+        if (requestData.getCropId() != null) {
+            plot.setCrop(findCropOrNull(requestData.getCropId(), plot.getUser()));
+        }
         applyFields(plot, requestData);
         plot.setUpdatedAt(Instant.now());
         fieldPlotRepository.save(plot);
@@ -62,6 +65,15 @@ public class FieldPlotService {
 
     public void delete(String farmerEmail, Long fieldPlotId) {
         fieldPlotRepository.delete(findOwned(farmerEmail, fieldPlotId));
+    }
+
+    // Loads the farmer's own crop, or null when no cropId was sent
+    private Crop findCropOrNull(Long cropId, User farmer) {
+        if (cropId == null) {
+            return null;
+        }
+        return cropRepository.findByIdAndUserId(cropId, farmer.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Crop not found"));
     }
 
     private void applyFields(FieldPlot plot, FieldPlotRequestDto requestData) {
@@ -82,14 +94,15 @@ public class FieldPlotService {
     private FieldPlot findOwned(String farmerEmail, Long fieldPlotId) {
         User farmer = requireUser(farmerEmail);
         return fieldPlotRepository.findByIdAndUserId(fieldPlotId, farmer.getId())
-                .orElseThrow(() -> new AccessDeniedException("Field plot not found or not owned by this farmer"));
+                .orElseThrow(() -> new ResourceNotFoundException("Field plot not found"));
     }
 
     private FieldPlotResponseDto toResponseDto(FieldPlot plot) {
+        Crop crop = plot.getCrop();
         return FieldPlotResponseDto.builder()
                 .fieldPlotId(plot.getId())
-                .cropId(plot.getCrop().getId())
-                .cropName(plot.getCrop().getCropName())
+                .cropId(crop != null ? crop.getId() : null)
+                .cropName(crop != null ? crop.getCropName() : null)
                 .currentCrop(plot.getCurrentCrop())
                 .cropVariety(plot.getCropVariety())
                 .areaUnit(plot.getAreaUnit())

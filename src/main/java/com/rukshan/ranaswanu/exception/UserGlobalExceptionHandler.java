@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -51,7 +52,8 @@ public class UserGlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, Object>> handleUnreadableBody(HttpMessageNotReadableException ex) {
-        return error(HttpStatus.BAD_REQUEST, "The request has a missing or wrongly formatted value. Check dates and numbers.");
+        return error(HttpStatus.BAD_REQUEST,
+                "The request has a missing or wrongly formatted value. Check dates and numbers.");
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -71,7 +73,7 @@ public class UserGlobalExceptionHandler {
 
     @ExceptionHandler({ResourceNotFoundException.class, UsernameNotFoundException.class})
     public ResponseEntity<Map<String, Object>> handleNotFound(RuntimeException ex) {
-        // For login we deliberately hide whether the user exists (see section 5.1)
+        // For login we deliberately hide whether the user exists
         String message = (ex instanceof UsernameNotFoundException) ? "Invalid email or password" : ex.getMessage();
         return error(HttpStatus.NOT_FOUND, message);
     }
@@ -83,7 +85,7 @@ public class UserGlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> handleDataIntegrity(DataIntegrityViolationException ex) {
-        // Duplicate username/email is checked earlier and gives a clearer message.
+        log.warn("Data integrity violation", ex);
         return error(HttpStatus.CONFLICT, "This action conflicts with existing data.");
     }
 
@@ -92,10 +94,28 @@ public class UserGlobalExceptionHandler {
         return error(HttpStatus.PAYLOAD_TOO_LARGE, "The file is too big. The maximum size is 5 MB.");
     }
 
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<Map<String, Object>> handleFileStorage(FileStorageException ex) {
+        log.error("File storage failed", ex);
+        return error(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+    }
+
     @ExceptionHandler(MailException.class)
     public ResponseEntity<Map<String, Object>> handleMailFailure(MailException ex) {
         log.error("Mail sending failed", ex);
         return error(HttpStatus.INTERNAL_SERVER_ERROR, "We could not send the email. Please try again later.");
+    }
+
+    // Keeps the status of Spring's own errors (so they are not turned into 500 by the safety net below)
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<Map<String, Object>> handleResponseStatus(ResponseStatusException ex) {
+        HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
+        if (status == null || status.is5xxServerError()) {
+            log.error("Server error", ex);
+            return error(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Something went wrong on our side. Please try again later.");
+        }
+        return error(status, "The request could not be processed. Please check it and try again.");
     }
 
     // Last safety net: never show Java details to the user

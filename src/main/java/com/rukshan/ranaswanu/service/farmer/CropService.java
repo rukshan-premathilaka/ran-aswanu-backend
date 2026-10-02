@@ -7,7 +7,7 @@ import com.rukshan.ranaswanu.entities.User;
 import com.rukshan.ranaswanu.repository.CropRepository;
 import com.rukshan.ranaswanu.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
+import com.rukshan.ranaswanu.exception.ResourceNotFoundException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -76,7 +76,7 @@ public class CropService {
     private Crop findOwned(String farmerEmail, Long cropId) {
         User farmer = requireUser(farmerEmail);
         return cropRepository.findByIdAndUserId(cropId, farmer.getId())
-                .orElseThrow(() -> new AccessDeniedException("Crop not found or not owned by this farmer"));
+                .orElseThrow(() -> new ResourceNotFoundException("Crop not found"));
     }
 
     private CropResponseDto toResponseDto(Crop crop) {

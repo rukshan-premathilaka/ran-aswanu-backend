@@ -1,27 +1,29 @@
 package com.rukshan.ranaswanu.service;
 
-import com.rukshan.ranaswanu.dto.request.auth.AuthForgotPasswordDto;
-import com.rukshan.ranaswanu.dto.request.auth.AuthResetPasswordDto;
+import com.rukshan.ranaswanu.dto.request.ChangePasswordDto;
 import com.rukshan.ranaswanu.dto.request.UpdateProfileDto;
+import com.rukshan.ranaswanu.dto.request.auth.AuthForgotPasswordDto;
 import com.rukshan.ranaswanu.dto.request.auth.AuthLoginDto;
 import com.rukshan.ranaswanu.dto.request.auth.AuthRegistrationDto;
+import com.rukshan.ranaswanu.dto.request.auth.AuthResetPasswordDto;
 import com.rukshan.ranaswanu.dto.response.ProfilePictureResponseDto;
 import com.rukshan.ranaswanu.dto.response.RoleUpdateResponseDto;
 import com.rukshan.ranaswanu.dto.response.UserProfileDto;
 import com.rukshan.ranaswanu.entities.PasswordResetToken;
 import com.rukshan.ranaswanu.entities.User;
+import com.rukshan.ranaswanu.exception.ConflictException;
+import com.rukshan.ranaswanu.exception.ResourceNotFoundException;
 import com.rukshan.ranaswanu.repository.PasswordResetTokenRepository;
 import com.rukshan.ranaswanu.repository.UserRepository;
 import com.rukshan.ranaswanu.security.JwtUtil;
-import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
@@ -30,7 +32,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
 
     @Autowired
     private UserRepository userRepository;
@@ -57,7 +59,15 @@ public class UserService implements UserDetailsService {
 
     // ---------------- AUTH ----------------
 
+    // Creates a new account; email and username must be unique
     public void register(AuthRegistrationDto requestData) {
+        if (userRepository.existsByEmail(requestData.getEmail())) {
+            throw new ConflictException("Email already registered");
+        }
+        if (userRepository.existsByName(requestData.getUsername())) {
+            throw new ConflictException("Username already taken");
+        }
+
         User user = User.builder()
                 .name(requestData.getUsername())
                 .email(requestData.getEmail())
@@ -68,30 +78,22 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    @NonNull
-    @Override
-    public UserDetails loadUserByUsername(@NonNull String email) throws UsernameNotFoundException {
-        User user = findUserByEmail(email);
-
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getEmail())
-                .password(user.getPassword())
-                .authorities("ROLE_USER")
-                .accountExpired(!user.isActive())
-                .build();
-    }
-
+    // Checks email/username + password and returns a JWT; same error for both failures on purpose
     public String login(AuthLoginDto requestData) {
         String identifier = (requestData.getEmail() != null && !requestData.getEmail().isBlank())
                 ? requestData.getEmail()
                 : requestData.getUsername();
 
         if (identifier == null || identifier.isBlank()) {
-            throw new BadCredentialsException("Username or email is required");
+            throw new IllegalArgumentException("Username or email is required");
         }
 
         User user = userRepository.findByEmailOrName(identifier, identifier)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + identifier));
+                .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
+
+        if (!passwordEncoder.matches(requestData.getPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Invalid email or password");
+        }
 
         UserDetails userDetails = org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
@@ -100,18 +102,15 @@ public class UserService implements UserDetailsService {
                 .accountExpired(!user.isActive())
                 .build();
 
-        if (!passwordEncoder.matches(requestData.getPassword(), userDetails.getPassword())) {
-            throw new BadCredentialsException("Invalid password");
-        }
-
         return jwtUtil.generateToken(userDetails);
     }
 
+    // Sends a reset link; stays silent for unknown emails so we do not leak who is registered
     public void forgotPassword(AuthForgotPasswordDto requestData) {
         Optional<User> userOpt = userRepository.findByEmail(requestData.getEmail());
 
         if (userOpt.isEmpty()) {
-            return; // deliberately silent — avoids leaking which emails are registered
+            return;
         }
 
         User user = userOpt.get();
@@ -130,16 +129,18 @@ public class UserService implements UserDetailsService {
         emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
     }
 
+    // Sets a new password from an emailed token; writes two tables so it is one transaction
+    @Transactional
     public void resetPassword(AuthResetPasswordDto requestData) {
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(requestData.getToken())
-                .orElseThrow(() -> new BadCredentialsException("Invalid or expired reset token"));
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid or expired reset token"));
 
         if (resetToken.isUsed()) {
-            throw new BadCredentialsException("This reset token has already been used");
+            throw new ResourceNotFoundException("This reset token has already been used");
         }
 
         if (resetToken.getExpiryDate().before(new Date())) {
-            throw new BadCredentialsException("This reset token has expired");
+            throw new ResourceNotFoundException("This reset token has expired");
         }
 
         User user = resetToken.getUser();
@@ -157,15 +158,26 @@ public class UserService implements UserDetailsService {
         return toProfileDto(user);
     }
 
+    // Updates only the fields that were sent; username and email must stay unique
     public UserProfileDto updateUserProfile(String email, UpdateProfileDto requestData) {
         User user = findUserByEmail(email);
 
-        if (requestData.getUsername() != null && !requestData.getUsername().isBlank()) {
-            user.setName(requestData.getUsername());
+        String newName = requestData.getUsername();
+        if (newName != null && !newName.isBlank() && !newName.equals(user.getName())) {
+            if (userRepository.existsByName(newName)) {
+                throw new ConflictException("Username already taken");
+            }
+            user.setName(newName);
         }
-        if (requestData.getEmail() != null && !requestData.getEmail().isBlank()) {
-            user.setEmail(requestData.getEmail());
+
+        String newEmail = requestData.getEmail();
+        if (newEmail != null && !newEmail.isBlank() && !newEmail.equalsIgnoreCase(user.getEmail())) {
+            if (userRepository.existsByEmail(newEmail)) {
+                throw new ConflictException("Email already registered");
+            }
+            user.setEmail(newEmail);
         }
+
         if (requestData.getPhoneNumber() != null) {
             user.setPhoneNumber(requestData.getPhoneNumber());
         }
@@ -177,6 +189,7 @@ public class UserService implements UserDetailsService {
         return toProfileDto(user);
     }
 
+    // Lets the user pick FARMER, BUYER or TRANSPORT after registering
     public RoleUpdateResponseDto updateUserRole(String email, String newRole) {
         String normalizedRole = newRole.toUpperCase();
 
@@ -191,8 +204,20 @@ public class UserService implements UserDetailsService {
         return RoleUpdateResponseDto.builder()
                 .userId(user.getId())
                 .role(user.getRole())
-                .message("Role updated successfully")
+                .message("Role updated")
                 .build();
+    }
+
+    // Changes the password after checking the old one (400, not 401, so the frontend does not log out)
+    public void changePassword(String email, ChangePasswordDto requestData) {
+        User user = findUserByEmail(email);
+
+        if (!passwordEncoder.matches(requestData.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Current password is wrong");
+        }
+
+        user.setPassword(passwordEncoder.encode(requestData.getNewPassword()));
+        userRepository.save(user);
     }
 
     public ProfilePictureResponseDto updateProfilePicture(String email, MultipartFile file) {

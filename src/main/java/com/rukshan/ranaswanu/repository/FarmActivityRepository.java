@@ -4,7 +4,10 @@ import com.rukshan.ranaswanu.entities.FarmActivity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface FarmActivityRepository extends JpaRepository<FarmActivity, Long> {
     List<FarmActivity> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    Optional<FarmActivity> findByIdAndUserId(Long id, Long userId);
 }

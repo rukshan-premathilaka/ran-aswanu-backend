@@ -51,6 +51,15 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping("/me/password")
+    public ResponseEntity<MessageResponseDto> changePassword(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody @Valid ChangePasswordDto requestData) {
+
+        userService.changePassword(userDetails.getUsername(), requestData);
+        return ResponseEntity.ok(MessageResponseDto.builder().message("Password changed successfully").build());
+    }
+
     @PostMapping("/me/picture")
     public ResponseEntity<ProfilePictureResponseDto> uploadProfilePicture(
             @AuthenticationPrincipal UserDetails userDetails,

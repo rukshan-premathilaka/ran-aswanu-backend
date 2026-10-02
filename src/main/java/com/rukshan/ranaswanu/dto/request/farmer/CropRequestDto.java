@@ -10,19 +10,19 @@ import java.time.Instant;
 @Data
 public class CropRequestDto {
 
-    @NotBlank
+    @NotBlank(message = "Crop name is required")
     private String cropName;
 
-    @NotBlank
+    @NotBlank(message = "Category is required")
     private String category;
 
-    @NotBlank
+    @NotBlank(message = "Unit is required")
     private String unit;
 
-    @NotNull
+    @NotNull(message = "Harvest quantity is required")
     private BigDecimal harvestQuantity;
 
-    @NotNull
+    @NotNull(message = "Harvest date is required")
     private Instant harvestDate;
 
     private String notes;
