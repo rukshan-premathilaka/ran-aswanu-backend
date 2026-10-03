@@ -149,7 +149,8 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public List<BuyerOrderSummaryDto> listForBuyer(String email) {
-        User buyer = requireRole(email, "BUYER", "Only buyers can view buyer orders");
+        User buyer = requireAnyRole(email, Set.of("BUYER", "FARMER"),
+                "Only buyers or farmers can view their purchase history");
         return orderRepository.findByBuyerWithItems(buyer.getId()).stream()
                 .map(o -> {
                     List<OrderItem> items = sortedItems(o);
@@ -250,6 +251,14 @@ public class OrderService {
         return order.getOrderItems().stream()
                 .sorted(Comparator.comparing(OrderItem::getId))
                 .toList();
+    }
+
+    private User requireAnyRole(String email, Set<String> roles, String deniedMessage) {
+        User user = requireUser(email);
+        if (!roles.contains(user.getRole())) {
+            throw new AccessDeniedException(deniedMessage);
+        }
+        return user;
     }
 
     private String plain(BigDecimal value) {

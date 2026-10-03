@@ -52,7 +52,7 @@ public class AppConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/*").permitAll()
                         .requestMatchers("/api/farmer/**").hasRole("FARMER")
-                        .requestMatchers("/api/buyer/**").hasRole("BUYER")
+                        .requestMatchers("/api/buyer/**").hasAnyRole("BUYER", "FARMER")
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/files/**").permitAll()
                         .anyRequest().authenticated()
