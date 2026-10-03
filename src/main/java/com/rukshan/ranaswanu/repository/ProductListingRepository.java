@@ -37,4 +37,9 @@ public interface ProductListingRepository extends JpaRepository<ProductListing, 
     List<ProductListing> findByListingStatusTrueAndProductNameContainingIgnoreCase(String keyword);
     List<ProductListing> findByListingStatusTrueAndCategoryIgnoreCaseAndProductNameContainingIgnoreCase(
             String category, String keyword);
+
+    // Admin dashboard
+    long countByListingStatus(Boolean listingStatus);
+    @Query("select p.createdAt from ProductListing p")
+    List<Instant> findAllCreatedAt();
 }

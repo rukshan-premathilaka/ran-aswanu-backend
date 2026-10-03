@@ -30,7 +30,7 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(orderService.checkout(userDetails.getUsername(), requestData));
     }
 
-    @PreAuthorize("hasAllAuthorities('BUYER', 'FARMER')")
+    @PreAuthorize("hasAnyRole('BUYER', 'FARMER')")
     @GetMapping("/buyer/orders")
     public ResponseEntity<List<BuyerOrderSummaryDto>> getBuyerOrders(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(orderService.listForBuyer(userDetails.getUsername()));

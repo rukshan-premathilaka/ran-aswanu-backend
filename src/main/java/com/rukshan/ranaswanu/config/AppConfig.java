@@ -35,7 +35,9 @@ public class AppConfig {
                                 ApiErrorWriter.write(res, 401, "Please log in again."))
                         .accessDeniedHandler((req, res, e) -> {
                             String uri = req.getRequestURI();
-                            String message = uri.startsWith("/api/farmer/")
+                            String message = uri.startsWith("/api/admin/")
+                                    ? "Only admins can access this resource."
+                                    : uri.startsWith("/api/farmer/")
                                     ? "Only farmers can access this resource."
                                     : uri.startsWith("/api/buyer/")
                                     ? "Only buyers can access this resource."
@@ -51,6 +53,7 @@ public class AppConfig {
                                 "/api/auth/reset-password"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/*").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")   // ADMIN only (authority = ROLE_ADMIN)
                         .requestMatchers("/api/farmer/**").hasAnyAuthority("FARMER", "BUYER")
                         .requestMatchers("/api/buyer/**").hasRole("BUYER")
                         .requestMatchers("/ws/**").permitAll()
