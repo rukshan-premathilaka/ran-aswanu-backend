@@ -35,4 +35,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query("select count(distinct o.id) from Order o join o.orderItems i " +
            "where i.list.user.id = :farmerId and o.orderStatus = :status")
     long countByFarmerAndStatus(@Param("farmerId") Long farmerId, @Param("status") String status);
+
+    // admin: orders placed by one user
+    long countByUserId(Long userId);
 }

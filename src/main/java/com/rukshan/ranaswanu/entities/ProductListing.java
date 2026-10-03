@@ -81,6 +81,13 @@ public class ProductListing {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    // Set by an admin. A farmer cannot change it. true = hidden from buyers.
+    @Column(name = "admin_disabled", nullable = false)
+    private boolean adminDisabled;
+
+    @Column(name = "admin_disabled_at")
+    private Instant adminDisabledAt;
+
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)

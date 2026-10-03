@@ -59,6 +59,9 @@ public class ProductListingService {
 
     public ProductListingResponseDto setPublished(String farmerEmail, Long listId, boolean published) {
         ProductListing listing = findOwned(farmerEmail, listId);
+        if (published && listing.isAdminDisabled()) {
+            throw new AccessDeniedException("This product was disabled by an administrator. Please contact support.");
+        }
         listing.setListingStatus(published);
         listing.setUpdatedAt(Instant.now());
         productListingRepository.save(listing);
@@ -103,18 +106,29 @@ public class ProductListingService {
             listings = productListingRepository.findByListingStatusTrue();
         }
 
-        return listings.stream().map(this::toResponseDto).toList();
+        return listings.stream()
+                .filter(this::isPubliclyVisible)
+                .map(this::toResponseDto)
+                .toList();
     }
 
     public ProductListingResponseDto getById(Long listId) {
         // Unpublished (draft) products look the same as missing ones: 404
         ProductListing listing = productListingRepository.findById(listId)
-                .filter(l -> Boolean.TRUE.equals(l.getListingStatus()))
+                .filter(this::isPubliclyVisible)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         return toResponseDto(listing);
     }
 
     // ---------------- HELPERS ----------------
+
+    // A product is visible to buyers only if: the farmer published it, the admin did not disable it,
+    // and the farmer's account is active
+    private boolean isPubliclyVisible(ProductListing l) {
+        return Boolean.TRUE.equals(l.getListingStatus())
+                && !l.isAdminDisabled()
+                && l.getUser().isActive();
+    }
 
     private void applyRequestFields(ProductListing listing, ProductListingRequestDto requestData) {
         listing.setProductName(requestData.getProductName());
@@ -160,6 +174,7 @@ public class ProductListingService {
                 .deliveryOption(listing.getDeliveryOption())
                 .productImage(listing.getProductImage() != null ? "/files/" + listing.getProductImage() : null)
                 .listingStatus(listing.getListingStatus())
+                .adminDisabled(listing.isAdminDisabled())
                 .createdAt(listing.getCreatedAt())
                 .updatedAt(listing.getUpdatedAt())
                 .build();

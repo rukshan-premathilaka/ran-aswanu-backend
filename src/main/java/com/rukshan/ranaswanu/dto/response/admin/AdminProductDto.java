@@ -1,4 +1,4 @@
-package com.rukshan.ranaswanu.dto.response.farmer;
+package com.rukshan.ranaswanu.dto.response.admin;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,10 +12,8 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductListingResponseDto {
+public class AdminProductDto {
     private Long listId;
-    private Long farmerId;
-    private String farmerName;
     private String productName;
     private String category;
     private String description;
@@ -23,11 +21,17 @@ public class ProductListingResponseDto {
     private BigDecimal pricePerUnit;
     private BigDecimal availableStock;
     private BigDecimal minimumOrderQuantity;
-    private Instant harvestedDate;
     private String deliveryOption;
     private String productImage;
-    private Boolean listingStatus; // true = published/live, false = draft/unpublished
-    private Boolean adminDisabled; // true = an admin disabled this product
+    private Instant harvestedDate;
+    private Boolean listingStatus;      // farmer switch: true = published
+    private boolean adminDisabled;      // admin switch: true = hidden from buyers
+    private Instant adminDisabledAt;
+    private String status;              // PUBLISHED | DRAFT | DISABLED (admin view of the two switches)
+    private Long farmerId;
+    private String farmerName;
+    private String farmerEmail;
+    private boolean farmerActive;
     private Instant createdAt;
     private Instant updatedAt;
 }

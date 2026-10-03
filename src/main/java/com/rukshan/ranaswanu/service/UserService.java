@@ -203,6 +203,9 @@ public class UserService {
         }
 
         User user = findUserByEmail(email);
+        if ("ADMIN".equals(user.getRole())) {
+            throw new IllegalArgumentException("Administrator accounts cannot change role here.");
+        }
         user.setRole(normalizedRole);
         userRepository.save(user);
 

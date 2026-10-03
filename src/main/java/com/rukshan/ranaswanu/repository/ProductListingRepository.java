@@ -14,7 +14,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface ProductListingRepository extends JpaRepository<ProductListing, Long> {
+public interface ProductListingRepository extends JpaRepository<ProductListing, Long>,
+        org.springframework.data.jpa.repository.JpaSpecificationExecutor<ProductListing> {
     List<ProductListing> findByUserId(Long userId);
     Optional<ProductListing> findByIdAndUserId(Long id, Long userId);
     List<ProductListing> findByCategoryIgnoreCase(String category);
@@ -37,4 +38,17 @@ public interface ProductListingRepository extends JpaRepository<ProductListing, 
     List<ProductListing> findByListingStatusTrueAndProductNameContainingIgnoreCase(String keyword);
     List<ProductListing> findByListingStatusTrueAndCategoryIgnoreCaseAndProductNameContainingIgnoreCase(
             String category, String keyword);
+
+    // ---- admin: counts ----
+    long countByUserId(Long userId);
+    long countByAdminDisabledTrue();
+    long countByListingStatusTrueAndAdminDisabledFalse();   // published
+    long countByListingStatusFalseAndAdminDisabledFalse();  // draft
+
+    // from is included, to is NOT included
+    @Query("select count(p) from ProductListing p where p.createdAt >= :from and p.createdAt < :to")
+    long countCreatedBetween(@Param("from") Instant from, @Param("to") Instant to);
+
+    @Query("select min(p.createdAt) from ProductListing p")
+    Instant findEarliestCreatedAt();
 }

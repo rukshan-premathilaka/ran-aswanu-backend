@@ -66,7 +66,8 @@ public class OrderService {
         // 1 + 2: every product must exist, be published, meet the minimum and have enough stock
         for (Map.Entry<Long, BigDecimal> e : wanted.entrySet()) {
             ProductListing p = listings.get(e.getKey());
-            if (p == null || !Boolean.TRUE.equals(p.getListingStatus())) {
+            if (p == null || !Boolean.TRUE.equals(p.getListingStatus())
+                    || p.isAdminDisabled() || !p.getUser().isActive()) {
                 throw new ResourceNotFoundException("Product not found");
             }
             if (e.getValue().compareTo(p.getMinimumOrderQuantity()) < 0) {
