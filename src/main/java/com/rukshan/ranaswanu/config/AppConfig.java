@@ -51,7 +51,7 @@ public class AppConfig {
                                 "/api/auth/reset-password"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/*").permitAll()
-                        .requestMatchers("/api/farmer/**").hasRole("FARMER")
+                        .requestMatchers("/api/farmer/**").hasAnyAuthority("FARMER", "BUYER")
                         .requestMatchers("/api/buyer/**").hasRole("BUYER")
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/files/**").permitAll()
