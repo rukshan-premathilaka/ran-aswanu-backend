@@ -50,7 +50,11 @@ public class OrderService {
         // Same product twice in the cart -> add the quantities together
         Map<Long, BigDecimal> wanted = new LinkedHashMap<>();
         for (OrderItemRequestDto item : request.getItems()) {
-            BigDecimal qty = item.getQuantity().setScale(2, RoundingMode.HALF_UP); // column is DECIMAL(18,2)
+            BigDecimal rawQty = item.getQuantity();
+            if (rawQty.stripTrailingZeros().scale() > 0) {
+                throw new IllegalArgumentException("Quantity must be a whole number");
+            }
+            BigDecimal qty = rawQty.setScale(2, RoundingMode.HALF_UP); // column is DECIMAL(18,2)
             if (qty.signum() <= 0) {
                 throw new IllegalArgumentException("Quantity must be above 0");
             }
