@@ -1,8 +1,5 @@
--- V15: shared delivery uses text statuses and a request may exist before it joins a delivery
-
 DECLARE @sql NVARCHAR(MAX);
 
--- Drop the old BIT default before changing deliveries.delivery_status to NVARCHAR.
 SELECT @sql = 'ALTER TABLE deliveries DROP CONSTRAINT ' + dc.name
 FROM sys.default_constraints dc
 JOIN sys.columns c ON c.default_object_id = dc.object_id
@@ -17,7 +14,6 @@ GO
 
 DECLARE @sql2 NVARCHAR(MAX);
 
--- Drop the old BIT default before changing transportation_requests.request_status to NVARCHAR.
 SELECT @sql2 = 'ALTER TABLE transportation_requests DROP CONSTRAINT ' + dc.name
 FROM sys.default_constraints dc
 JOIN sys.columns c ON c.default_object_id = dc.object_id

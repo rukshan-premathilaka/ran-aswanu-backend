@@ -1,5 +1,3 @@
--- V14: a review now records who wrote it and for which order
--- (user_id stays = the person being rated, reviewer_id = the buyer)
 ALTER TABLE customer_reviews ADD reviewer_id BIGINT NULL;
 ALTER TABLE customer_reviews ADD order_id    BIGINT NULL;
 GO

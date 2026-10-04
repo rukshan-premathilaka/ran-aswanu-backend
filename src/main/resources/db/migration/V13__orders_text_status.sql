@@ -1,6 +1,3 @@
--- Orders: text statuses (PENDING, ACCEPTED, ...) and an order can exist before a delivery is assigned.
--- SQL Server cannot change a column that has a default constraint, so drop the defaults first.
-
 DECLARE @sql NVARCHAR(MAX);
 
 SELECT @sql = 'ALTER TABLE orders DROP CONSTRAINT ' + dc.name

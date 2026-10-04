@@ -1,4 +1,3 @@
--- Support messages sent by users from the Help & Support page
 CREATE TABLE support_messages (
     message_id BIGINT IDENTITY(1,1) PRIMARY KEY,
     subject    NVARCHAR(100)  NOT NULL,

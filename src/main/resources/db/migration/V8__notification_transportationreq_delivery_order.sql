@@ -26,8 +26,8 @@ CREATE TABLE transportation_requests
 (
     transportation_request_id BIGINT IDENTITY (1,1) PRIMARY KEY,
     description               NVARCHAR(500),
-    pickup_location           NVARCHAR(255) NOT NULL,-- LOOK AFTER it says to store latitude and longitude
-    delivery_location         NVARCHAR(255) NOT NULL,-- LOOK AFTER it says to store latitude and longitude
+    pickup_location           NVARCHAR(255) NOT NULL,
+    delivery_location         NVARCHAR(255) NOT NULL,
     requested_date_time       DATETIME2     NOT NULL,
     vehicle_type              NVARCHAR(50)  NOT NULL,
     estimated_weight          BIGINT        NOT NULL,
@@ -50,7 +50,7 @@ CREATE TABLE orders
     order_date_time  DATETIME2      NOT NULL DEFAULT GETDATE(),
     order_status     BIT            NOT NULL DEFAULT 0,
     notes            NVARCHAR(255),
-    total_amount     DECIMAL(18, 2) NOT NULL DEFAULT 0.00,--should store the total amount of the order in Rs
+    total_amount     DECIMAL(18, 2) NOT NULL DEFAULT 0.00,
     contact_number   NVARCHAR(50)   NOT NULL,
     delivery_address NVARCHAR(255)  NOT NULL,
     payment_method   NVARCHAR(100)  NOT NULL,
