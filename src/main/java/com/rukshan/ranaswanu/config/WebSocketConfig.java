@@ -1,6 +1,7 @@
 package com.rukshan.ranaswanu.config;
 
 import com.rukshan.ranaswanu.security.WebSocketAuthInterceptor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -13,6 +14,10 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final WebSocketAuthInterceptor webSocketAuthInterceptor;
+
+    // Same CORS_ALLOWED_ORIGINS list as the REST API
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOrigins;
 
     public WebSocketConfig(WebSocketAuthInterceptor webSocketAuthInterceptor) {
         this.webSocketAuthInterceptor = webSocketAuthInterceptor;
@@ -31,12 +36,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        String[] origins = CorsConfig.parseOrigins(allowedOrigins);
+
         registry.addEndpoint("/ws/chat")
-                .setAllowedOriginPatterns("http://localhost:5173")
+                .setAllowedOriginPatterns(origins)
                 .withSockJS();
 
         registry.addEndpoint("/ws/notifications")
-                .setAllowedOriginPatterns("http://localhost:5173")
+                .setAllowedOriginPatterns(origins)
                 .withSockJS();
     }
 }

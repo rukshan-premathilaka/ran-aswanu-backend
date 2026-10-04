@@ -12,7 +12,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "farm_Activities", schema = "dbo")
+@Table(name = "farm_Activities")
 public class FarmActivity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

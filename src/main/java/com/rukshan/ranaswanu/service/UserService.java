@@ -242,7 +242,7 @@ public class UserService {
 
         return ProfilePictureResponseDto.builder()
                 .userId(user.getId())
-                .profilePictureUrl("/files/" + relativePath)
+                .profilePictureUrl(FileStorageService.publicUrl(relativePath))
                 .message("Profile picture updated successfully")
                 .build();
     }
@@ -263,7 +263,7 @@ public class UserService {
                 .active(user.isActive())
                 .phoneNumber(user.getPhoneNumber())
                 .address(user.getAddress())
-                .profilePictureUrl(user.getProfilePicture() != null ? "/files/" + user.getProfilePicture() : null)
+                .profilePictureUrl(FileStorageService.publicUrl(user.getProfilePicture()))
                 .createdAt(user.getCreatedAt())
                 .build();
     }

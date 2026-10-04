@@ -168,8 +168,7 @@ public class ProductListingService {
                 .listId(listing.getId())
                 .farmerId(listing.getUser().getId())
                 .farmerName(listing.getUser().getName())
-                .farmerProfilePicture(listing.getUser().getProfilePicture() != null
-                        ? "/files/" + listing.getUser().getProfilePicture() : null)
+                .farmerProfilePicture(com.rukshan.ranaswanu.service.FileStorageService.publicUrl(listing.getUser().getProfilePicture()))
                 .location(listing.getLocation())
                 .productName(listing.getProductName())
                 .category(listing.getCategory())
@@ -180,7 +179,7 @@ public class ProductListingService {
                 .minimumOrderQuantity(listing.getMinimumOrderQuantity())
                 .harvestedDate(listing.getHarvestedDate())
                 .deliveryOption(listing.getDeliveryOption())
-                .productImage(listing.getProductImage() != null ? "/files/" + listing.getProductImage() : null)
+                .productImage(com.rukshan.ranaswanu.service.FileStorageService.publicUrl(listing.getProductImage()))
                 .listingStatus(listing.getListingStatus())
                 .adminDisabled(listing.isAdminDisabled())
                 .createdAt(listing.getCreatedAt())

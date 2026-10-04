@@ -1,25 +1,34 @@
 spring:
   application:
     name: ranaswanu
-  profiles:
-    default: local   # loads application-local.yaml (your own file, not in Git)
+  config:
+    # Local only: reads the ".env" file in the project root if it exists.
+    # On Heroku there is no .env file, the Config Vars are used instead (they always win).
+    import: optional:file:.env[.properties]
   datasource:
-    url: jdbc:sqlserver://localhost:1433;databaseName=runaswanna;encrypt=true;trustServerCertificate=true;
-    username: ${DB_USERNAME:sa}
-    password: ${DB_PASSWORD}
-    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    # Heroku sets JDBC_DATABASE_* itself when Heroku Postgres is attached. Locally use DB_URL / DB_USERNAME / DB_PASSWORD.
+    url: ${JDBC_DATABASE_URL:${DB_URL:jdbc:postgresql://localhost:5432/ranaswanu}}
+    username: ${JDBC_DATABASE_USERNAME:${DB_USERNAME:postgres}}
+    password: ${JDBC_DATABASE_PASSWORD:${DB_PASSWORD:}}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:5}   # Heroku Mini Postgres allows 20 connections in total
+  flyway:
+    locations: classpath:db/postgres         # the old SQL Server scripts in db/migration are not used any more
   jpa:
-    show-sql: true
+    show-sql: ${SHOW_SQL:false}
     hibernate:
       ddl-auto: validate
     properties:
       hibernate:
+        jdbc:
+          time_zone: UTC
         type:
           preferred_instant_jdbc_type: TIMESTAMP
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ranaswanu.co@gmail.com
+    username: ${MAIL_USERNAME:ranaswanu.co@gmail.com}
     password: ${MAIL_PASSWORD}
     properties:
       mail:
@@ -32,18 +41,30 @@ spring:
       max-file-size: 5MB
       max-request-size: 5MB
 
+server:
+  port: ${PORT:8080}                  # Heroku gives the port in PORT
+  forward-headers-strategy: framework # Heroku terminates https in front of the app
+
 app:
   frontend:
-    reset-password-url: http://localhost:5173/reset-password
-
+    reset-password-url: ${FRONTEND_RESET_URL:http://localhost:5173/reset-password}
+  cors:
+    # Comma separated, no spaces needed. Example: https://my-app.vercel.app,http://localhost:5173
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
   upload:
-    dir: uploads  # uploaded files are physically stored on disk
+    dir: uploads  # only used when CLOUDINARY_URL is empty (local disk)
+  cloudinary:
+    url: ${CLOUDINARY_URL:}
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET}               # required, at least 32 characters
   expiration-ms: 86400000
 
 management:
+  endpoints:
+    web:
+      exposure:
+        include: health
   health:
     mail:
       enabled: false

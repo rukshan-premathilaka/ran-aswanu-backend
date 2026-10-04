@@ -92,7 +92,7 @@ public class AdminProductService {
                 .availableStock(p.getAvailableStock())
                 .minimumOrderQuantity(p.getMinimumOrderQuantity())
                 .deliveryOption(p.getDeliveryOption())
-                .productImage(p.getProductImage() != null ? "/files/" + p.getProductImage() : null)
+                .productImage(com.rukshan.ranaswanu.service.FileStorageService.publicUrl(p.getProductImage()))
                 .harvestedDate(p.getHarvestedDate())
                 .listingStatus(p.getListingStatus())
                 .adminDisabled(p.isAdminDisabled())

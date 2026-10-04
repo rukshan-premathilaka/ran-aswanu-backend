@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
-@Table(name = "field_plots", schema = "dbo")
+@Table(name = "field_plots")
 public class FieldPlot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,9 +48,7 @@ public class FieldPlot {
     @Column(name = "health_condition", nullable = false, length = 100)
     private String healthCondition;
 
-    @Nationalized
-    @Lob
-    @Column(name = "field_logs")
+    @Column(name = "field_logs", columnDefinition = "text")
     private String fieldLogs;
 
     @NotNull

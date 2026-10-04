@@ -11,7 +11,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "locations", schema = "dbo")
+@Table(name = "locations")
 public class Location {
     @Id
     @Column(name = "user_id", nullable = false)

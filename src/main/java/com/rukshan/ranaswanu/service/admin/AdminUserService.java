@@ -96,7 +96,7 @@ public class AdminUserService {
 
         if (withDetails) {
             b.address(u.getAddress())
-                    .profilePictureUrl(u.getProfilePicture() != null ? "/files/" + u.getProfilePicture() : null)
+                    .profilePictureUrl(com.rukshan.ranaswanu.service.FileStorageService.publicUrl(u.getProfilePicture()))
                     .productCount(productListingRepository.countByUserId(u.getId()))
                     .orderCount(orderRepository.countByUserId(u.getId()))
                     .supportMessageCount(supportMessageRepository.countByUserId(u.getId()));
