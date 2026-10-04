@@ -18,6 +18,7 @@ DELETE FROM order_items WHERE order_id IN (SELECT order_id FROM #seed_orders)
 DELETE FROM orders WHERE order_id IN (SELECT order_id FROM #seed_orders);
 DELETE FROM transportation_requests WHERE user_id IN (SELECT user_id FROM #seed_users);
 DELETE FROM deliveries WHERE delivery_id IN (SELECT delivery_id FROM #seed_deliveries);
+DELETE FROM delivery_vehicles WHERE user_id IN (SELECT user_id FROM #seed_users);
 DELETE FROM product_listings WHERE user_id IN (SELECT user_id FROM #seed_users);
 DELETE FROM field_plots WHERE user_id IN (SELECT user_id FROM #seed_users);
 DELETE FROM crops WHERE user_id IN (SELECT user_id FROM #seed_users);

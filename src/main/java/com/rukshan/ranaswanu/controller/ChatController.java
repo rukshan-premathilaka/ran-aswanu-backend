@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,5 +47,13 @@ public class ChatController {
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long chatId) {
         return ResponseEntity.ok(chatService.listMessages(userDetails.getUsername(), chatId));
+    }
+
+    @PatchMapping("/{chatId}/read")
+    public ResponseEntity<Void> markRead(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long chatId) {
+        chatService.markRead(userDetails.getUsername(), chatId);
+        return ResponseEntity.noContent().build();
     }
 }

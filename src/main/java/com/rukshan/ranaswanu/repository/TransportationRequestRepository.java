@@ -26,7 +26,25 @@ public interface TransportationRequestRepository extends JpaRepository<Transport
     List<TransportationRequest> findByRequestTypeAndRequestStatusAndDeliveryIsNullAndUser_IdNotOrderByRequestedDateTimeAsc(
             String requestType, String requestStatus, Long userId);
 
+    @Query("""
+            select distinct t from TransportationRequest t
+            left join t.delivery d
+            where t.requestType in :requestTypes
+              and t.user.id <> :userId
+              and (
+                    (t.requestStatus = 'OPEN' and t.delivery is null)
+                    or
+                    (t.requestStatus = 'MATCHED' and t.delivery is not null and d.vehicle is null)
+                  )
+            order by t.requestedDateTime asc
+            """)
+    List<TransportationRequest> findTransportBoardRequests(
+            @Param("requestTypes") java.util.Set<String> requestTypes,
+            @Param("userId") Long userId);
+
     List<TransportationRequest> findByDelivery_Id(Long deliveryId);
+
+    Optional<TransportationRequest> findFirstByDelivery_IdAndUser_Id(Long deliveryId, Long userId);
 
     long countByDelivery_Id(Long deliveryId);
 

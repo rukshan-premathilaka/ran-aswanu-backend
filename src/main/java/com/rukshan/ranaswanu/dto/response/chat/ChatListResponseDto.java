@@ -17,4 +17,5 @@ public class ChatListResponseDto {
     private String otherUserName;
     private String lastMessage;
     private Instant updatedAt;
+    private long unreadCount;
 }

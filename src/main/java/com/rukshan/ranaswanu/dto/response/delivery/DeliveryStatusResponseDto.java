@@ -18,4 +18,8 @@ public class DeliveryStatusResponseDto {
     private String vehicleType;
     private Long estimatedWeight;
     private String partnerName;
+    private Long vehicleId;
+    private String vehicleName;
+    private String registrationNumber;
+    private Long vehicleCapacityKg;
 }

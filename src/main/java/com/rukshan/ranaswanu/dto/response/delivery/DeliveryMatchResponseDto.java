@@ -9,6 +9,8 @@ import java.time.Instant;
 @Builder
 public class DeliveryMatchResponseDto {
     private Long requestId;
+    private Long orderId;
+    private Long deliveryId;
     private String userName;
     private String pickupLocation;
     private String destination;

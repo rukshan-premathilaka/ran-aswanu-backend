@@ -24,4 +24,5 @@ public class FarmerOrderSummaryDto {
     private Instant orderDate;
     private int itemCount;
     private String firstItemName;
+    private Long deliveryId;
 }

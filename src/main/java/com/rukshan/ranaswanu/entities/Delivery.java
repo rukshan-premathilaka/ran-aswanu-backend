@@ -44,6 +44,10 @@ public class Delivery {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "vehicle_id")
+    private DeliveryVehicle vehicle;
+
     @OneToMany(mappedBy = "delivery")
     private Set<Order> orders = new LinkedHashSet<>();
 

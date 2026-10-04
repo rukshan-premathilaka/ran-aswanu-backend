@@ -38,8 +38,8 @@ public class DeliveryRequestDto {
     private String size;
 
     // optional: FARMER_REQUEST or VEHICLE_OFFER. If missing, it is chosen from the user's role.
-    @Pattern(regexp = "FARMER_REQUEST|VEHICLE_OFFER",
-             message = "Request type must be FARMER_REQUEST or VEHICLE_OFFER")
+    @Pattern(regexp = "CUSTOMER_REQUEST|FARMER_REQUEST|VEHICLE_OFFER",
+             message = "Request type must be CUSTOMER_REQUEST, FARMER_REQUEST or VEHICLE_OFFER")
     private String requestType;
 
     @Size(max = 500, message = "Description must be at most 500 characters")
@@ -47,4 +47,7 @@ public class DeliveryRequestDto {
 
     @Size(max = 500, message = "Special instructions must be at most 500 characters")
     private String specialInstructions;
+
+    // Optional for legacy requests; required by the new frontend delivery flow.
+    private Long orderId;
 }

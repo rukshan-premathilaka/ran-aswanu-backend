@@ -22,13 +22,16 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public ChatService(ChatRepository chatRepository,
                        MessageRepository messageRepository,
-                       UserRepository userRepository) {
+                       UserRepository userRepository,
+                       NotificationService notificationService) {
         this.chatRepository = chatRepository;
         this.messageRepository = messageRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -43,7 +46,8 @@ public class ChatService {
         long firstId = Math.min(currentUser.getId(), otherUser.getId());
         long secondId = Math.max(currentUser.getId(), otherUser.getId());
 
-        Chat chat = chatRepository.findByUserPair(firstId, secondId).orElseGet(() -> createChat(currentUser, otherUser, firstId));
+        Chat chat = chatRepository.findByUserPair(firstId, secondId)
+                .orElseGet(() -> createChat(currentUser, otherUser, firstId));
         return new ChatResponseDto(chat.getId(), otherUser.getId(), otherUser.getName());
     }
 
@@ -62,6 +66,13 @@ public class ChatService {
         return messageRepository.findAllByChatIdOrderBySentAtAsc(chat.getId()).stream()
                 .map(this::toMessageResponse)
                 .toList();
+    }
+
+    @Transactional
+    public void markRead(String email, Long chatId) {
+        User currentUser = requireUser(email);
+        Chat chat = requireParticipant(chatId, currentUser.getId());
+        messageRepository.markIncomingMessagesRead(chat.getId(), currentUser.getId());
     }
 
     @Transactional
@@ -87,6 +98,14 @@ public class ChatService {
 
         chat.setUpdatedAt(now);
         chatRepository.save(chat);
+
+        User recipient = chat.getUserOne().getId().equals(sender.getId()) ? chat.getUserTwo() : chat.getUserOne();
+        notificationService.create(
+                recipient.getId(),
+                "New chat message",
+                sender.getName() + " sent you a new message."
+        );
+
         return toMessageResponse(saved);
     }
 
@@ -110,12 +129,14 @@ public class ChatService {
         String lastMessage = messageRepository.findTopByChatIdOrderBySentAtDesc(chat.getId())
                 .map(Message::getContent)
                 .orElse(null);
+        long unreadCount = messageRepository.countUnreadForChat(chat.getId(), currentUserId);
         return ChatListResponseDto.builder()
                 .chatId(chat.getId())
                 .otherUserId(other.getId())
                 .otherUserName(other.getName())
                 .lastMessage(lastMessage)
                 .updatedAt(chat.getUpdatedAt())
+                .unreadCount(unreadCount)
                 .build();
     }
 

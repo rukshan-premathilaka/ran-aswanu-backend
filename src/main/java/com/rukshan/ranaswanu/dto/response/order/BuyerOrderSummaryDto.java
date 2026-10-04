@@ -22,4 +22,6 @@ public class BuyerOrderSummaryDto {
     private Instant orderDate;
     private int itemCount;
     private String firstItemName;
+    private String deliveryAddress;
+    private Long deliveryId;
 }

@@ -9,6 +9,7 @@ import java.time.Instant;
 @Builder
 public class DeliveryRequestResponseDto {
     private Long requestId;
+    private Long orderId;
     private String status;
     private String pickupLocation;
     private String destination;

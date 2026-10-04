@@ -66,7 +66,7 @@ public class TransportationRequest {
     @Column(name = "\"size\"", nullable = false, length = 50)
     private String size;
 
-    // FARMER_REQUEST (a farmer needs a vehicle) or VEHICLE_OFFER (a transport user offers a vehicle)
+    // CUSTOMER_REQUEST (buyer/farmer needs delivery), FARMER_REQUEST/VEHICLE_OFFER are legacy types.
     @Size(max = 20)
     @NotNull
     @Nationalized
@@ -87,4 +87,8 @@ public class TransportationRequest {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "delivery_id")
     private Delivery delivery;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "order_id")
+    private Order order;
 }

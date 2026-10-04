@@ -1,15 +1,19 @@
 package com.rukshan.ranaswanu.controller;
 
+import com.rukshan.ranaswanu.dto.request.delivery.AssignVehicleRequestDto;
 import com.rukshan.ranaswanu.dto.request.delivery.DeliveryRequestDto;
 import com.rukshan.ranaswanu.dto.request.delivery.DeliveryStatusRequestDto;
+import com.rukshan.ranaswanu.dto.request.delivery.DeliveryVehicleRequestDto;
 import com.rukshan.ranaswanu.dto.request.delivery.JoinDeliveryRequestDto;
 import com.rukshan.ranaswanu.dto.response.delivery.AcceptDeliveryResponseDto;
 import com.rukshan.ranaswanu.dto.response.delivery.DeliveryMatchesResponseDto;
 import com.rukshan.ranaswanu.dto.response.delivery.DeliveryRequestResponseDto;
 import com.rukshan.ranaswanu.dto.response.delivery.DeliveryStatusResponseDto;
+import com.rukshan.ranaswanu.dto.response.delivery.DeliveryVehicleResponseDto;
 import com.rukshan.ranaswanu.dto.response.delivery.JoinDeliveryResponseDto;
 import com.rukshan.ranaswanu.dto.response.delivery.OpenDeliveryRequestDto;
 import com.rukshan.ranaswanu.service.DeliveryService;
+import com.rukshan.ranaswanu.service.DeliveryVehicleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,8 +28,8 @@ import java.util.List;
 @RequestMapping("/api")
 public class DeliveryController {
 
-    @Autowired
-    private DeliveryService deliveryService;
+    @Autowired private DeliveryService deliveryService;
+    @Autowired private DeliveryVehicleService deliveryVehicleService;
 
     @PostMapping("/delivery-requests")
     public ResponseEntity<DeliveryRequestResponseDto> createDeliveryRequest(
@@ -41,7 +45,7 @@ public class DeliveryController {
         return ResponseEntity.ok(deliveryService.listMine(userDetails.getUsername()));
     }
 
-    // Delivery board: other users' open items. type = VEHICLE_OFFER or FARMER_REQUEST
+    // Delivery board: type CUSTOMER_REQUEST is used by transport users for both open and already-shared requests.
     @GetMapping("/delivery-requests/open")
     public ResponseEntity<List<OpenDeliveryRequestDto>> getOpenDeliveryRequests(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -49,12 +53,13 @@ public class DeliveryController {
         return ResponseEntity.ok(deliveryService.listOpen(userDetails.getUsername(), type));
     }
 
-    // Delivery board: choose / accept another user's open item (no body)
+    // Existing clients may omit the body; the new flow sends {"vehicleId": ...}.
     @PostMapping("/delivery-requests/{requestId}/accept")
     public ResponseEntity<AcceptDeliveryResponseDto> acceptDeliveryRequest(
             @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable Long requestId) {
-        return ResponseEntity.ok(deliveryService.accept(userDetails.getUsername(), requestId));
+            @PathVariable Long requestId,
+            @RequestBody(required = false) AssignVehicleRequestDto assignment) {
+        return ResponseEntity.ok(deliveryService.accept(userDetails.getUsername(), requestId, assignment));
     }
 
     @GetMapping("/delivery-requests/{requestId}/matches")
@@ -85,5 +90,37 @@ public class DeliveryController {
             @PathVariable Long deliveryId,
             @RequestBody @Valid DeliveryStatusRequestDto request) {
         return ResponseEntity.ok(deliveryService.updateStatus(userDetails.getUsername(), deliveryId, request));
+    }
+
+    // ---------------- TRANSPORT VEHICLE CRUD ----------------
+
+    @GetMapping("/delivery/vehicles")
+    public ResponseEntity<List<DeliveryVehicleResponseDto>> listVehicles(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(deliveryVehicleService.listMine(userDetails.getUsername()));
+    }
+
+    @PostMapping("/delivery/vehicles")
+    public ResponseEntity<DeliveryVehicleResponseDto> createVehicle(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody @Valid DeliveryVehicleRequestDto request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(deliveryVehicleService.create(userDetails.getUsername(), request));
+    }
+
+    @PutMapping("/delivery/vehicles/{vehicleId}")
+    public ResponseEntity<DeliveryVehicleResponseDto> updateVehicle(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long vehicleId,
+            @RequestBody @Valid DeliveryVehicleRequestDto request) {
+        return ResponseEntity.ok(deliveryVehicleService.update(userDetails.getUsername(), vehicleId, request));
+    }
+
+    @DeleteMapping("/delivery/vehicles/{vehicleId}")
+    public ResponseEntity<Void> deleteVehicle(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long vehicleId) {
+        deliveryVehicleService.delete(userDetails.getUsername(), vehicleId);
+        return ResponseEntity.noContent().build();
     }
 }

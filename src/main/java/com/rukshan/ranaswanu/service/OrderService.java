@@ -45,7 +45,8 @@ public class OrderService {
     /** One transaction: if anything fails, nothing is saved and no stock is taken. */
     @Transactional
     public CheckoutResponseDto checkout(String buyerEmail, CheckoutRequestDto request) {
-        User buyer = requireRole(buyerEmail, "BUYER", "Only buyers can place orders");
+        User buyer = requireAnyRole(buyerEmail, Set.of("BUYER", "FARMER", "TRANSPORT"),
+                "Only buyers, farmers or transport users can place orders");
 
         // Same product twice in the cart -> add the quantities together
         Map<Long, BigDecimal> wanted = new LinkedHashMap<>();
@@ -150,8 +151,8 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public List<BuyerOrderSummaryDto> listForBuyer(String email) {
-        User buyer = requireAnyRole(email, Set.of("BUYER", "FARMER"),
-                "Only buyers or farmers can view their purchase history");
+        User buyer = requireAnyRole(email, Set.of("BUYER", "FARMER", "TRANSPORT"),
+                "Only buyers, farmers or transport users can view purchase history");
         return orderRepository.findByBuyerWithItems(buyer.getId()).stream()
                 .map(o -> {
                     List<OrderItem> items = sortedItems(o);
@@ -166,6 +167,8 @@ public class OrderService {
                             .orderDate(o.getOrderDateTime())
                             .itemCount(items.size())
                             .firstItemName(items.isEmpty() ? null : items.get(0).getList().getProductName())
+                            .deliveryAddress(o.getDeliveryAddress())
+                            .deliveryId(o.getDelivery() == null ? null : o.getDelivery().getId())
                             .build();
                 })
                 .toList();
@@ -189,6 +192,7 @@ public class OrderService {
                             .orderDate(o.getOrderDateTime())
                             .itemCount(items.size())
                             .firstItemName(items.isEmpty() ? null : items.get(0).getList().getProductName())
+                            .deliveryId(o.getDelivery() == null ? null : o.getDelivery().getId())
                             .build();
                 })
                 .toList();

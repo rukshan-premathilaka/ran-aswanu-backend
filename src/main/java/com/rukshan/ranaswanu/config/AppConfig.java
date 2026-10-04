@@ -40,7 +40,7 @@ public class AppConfig {
                                     : uri.startsWith("/api/farmer/")
                                     ? "Only farmers can access this resource."
                                     : uri.startsWith("/api/buyer/")
-                                    ? "Only buyers can access this resource."
+                                    ? "Only buyers, farmers or transport users can access this resource."
                                     : "You do not have permission to do this.";
                             ApiErrorWriter.write(res, 403, message);
                         }))
@@ -56,7 +56,8 @@ public class AppConfig {
                         .requestMatchers(HttpMethod.GET, "/api/users/*/reviews").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/farmer/**").hasRole("FARMER")
-                        .requestMatchers("/api/buyer/**").hasAnyRole("BUYER", "FARMER")
+                        .requestMatchers("/api/delivery/vehicles/**").hasRole("TRANSPORT")
+                        .requestMatchers("/api/buyer/**").hasAnyRole("BUYER", "FARMER", "TRANSPORT")
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/files/**").permitAll()
                         .anyRequest().authenticated()

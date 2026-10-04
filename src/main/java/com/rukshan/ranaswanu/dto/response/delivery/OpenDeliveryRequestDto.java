@@ -10,7 +10,10 @@ import java.time.Instant;
 @Builder
 public class OpenDeliveryRequestDto {
     private Long requestId;
+    private Long orderId;
+    private Long deliveryId;
     private String requestType;
+    private String requestStatus;
     private String description;
     private String vehicleType;
     private Long estimatedWeight;
