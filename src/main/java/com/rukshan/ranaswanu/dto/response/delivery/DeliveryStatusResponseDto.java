@@ -12,4 +12,10 @@ public class DeliveryStatusResponseDto {
     private String status;
     private Instant estimatedArrival;
     private Instant lastUpdated;
+    private String pickupLocation;
+    private String destination;
+    private Instant preferredDateTime;
+    private String vehicleType;
+    private Long estimatedWeight;
+    private String partnerName;
 }

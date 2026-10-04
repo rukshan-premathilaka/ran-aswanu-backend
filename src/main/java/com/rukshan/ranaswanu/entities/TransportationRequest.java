@@ -66,6 +66,13 @@ public class TransportationRequest {
     @Column(name = "\"size\"", nullable = false, length = 50)
     private String size;
 
+    // FARMER_REQUEST (a farmer needs a vehicle) or VEHICLE_OFFER (a transport user offers a vehicle)
+    @Size(max = 20)
+    @NotNull
+    @Nationalized
+    @Column(name = "request_type", nullable = false, length = 20)
+    private String requestType;
+
     @Column(name = "created_at")
     private Instant createdAt;
 

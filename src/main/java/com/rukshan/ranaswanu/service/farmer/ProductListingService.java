@@ -140,6 +140,11 @@ public class ProductListingService {
         listing.setMinimumOrderQuantity(requestData.getMinimumOrderQuantity());
         listing.setHarvestedDate(requestData.getHarvestedDate());
         listing.setDeliveryOption(requestData.getDeliveryOption());
+        // location is optional: if the request does not send it, keep what is saved
+        if (requestData.getLocation() != null) {
+            String trimmed = requestData.getLocation().trim();
+            listing.setLocation(trimmed.isEmpty() ? null : trimmed);
+        }
     }
 
     private User requireFarmer(String email) {
@@ -163,6 +168,9 @@ public class ProductListingService {
                 .listId(listing.getId())
                 .farmerId(listing.getUser().getId())
                 .farmerName(listing.getUser().getName())
+                .farmerProfilePicture(listing.getUser().getProfilePicture() != null
+                        ? "/files/" + listing.getUser().getProfilePicture() : null)
+                .location(listing.getLocation())
                 .productName(listing.getProductName())
                 .category(listing.getCategory())
                 .description(listing.getDescription())

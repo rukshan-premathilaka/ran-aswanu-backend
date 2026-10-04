@@ -22,6 +22,10 @@ public interface TransportationRequestRepository extends JpaRepository<Transport
 
     List<TransportationRequest> findByUser_IdNotAndRequestStatusAndDeliveryIsNull(Long userId, String requestStatus);
 
+    // delivery board: other users' open items of one type, soonest first
+    List<TransportationRequest> findByRequestTypeAndRequestStatusAndDeliveryIsNullAndUser_IdNotOrderByRequestedDateTimeAsc(
+            String requestType, String requestStatus, Long userId);
+
     List<TransportationRequest> findByDelivery_Id(Long deliveryId);
 
     long countByDelivery_Id(Long deliveryId);

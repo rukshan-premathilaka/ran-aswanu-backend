@@ -36,6 +36,10 @@ public class ProductListingRequestDto {
 
     private Instant harvestedDate;
 
+    // optional: town or district shown on the product page
+    @Size(max = 100, message = "Location must be 100 characters or fewer")
+    private String location;
+
     @NotBlank(message = "Delivery option is required")
     @Pattern(regexp = "Pickup|Delivery|Both", message = "Delivery option must be Pickup, Delivery or Both")
     private String deliveryOption;

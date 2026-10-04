@@ -183,6 +183,8 @@ public class OrderService {
                             .contactNumber(o.getContactNumber())
                             .orderStatus(o.getOrderStatus())
                             .paymentStatus(o.getPaymentStatus())
+                            .paymentMethod(o.getPaymentMethod())
+                            .deliveryAddress(o.getDeliveryAddress())
                             .totalAmount(o.getTotalAmount())
                             .orderDate(o.getOrderDateTime())
                             .itemCount(items.size())

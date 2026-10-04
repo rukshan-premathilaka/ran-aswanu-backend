@@ -15,4 +15,8 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
 
     @Query("select c from Chat c where c.userOne.id = :userId or c.userTwo.id = :userId order by c.updatedAt desc")
     List<Chat> findAllForUser(@Param("userId") Long userId);
+
+    // true when the user is one of the two people in the chat (used to protect /topic/chat/{id})
+    @Query("select count(c) > 0 from Chat c where c.id = :chatId and (c.userOne.id = :userId or c.userTwo.id = :userId)")
+    boolean isMember(@Param("chatId") Long chatId, @Param("userId") Long userId);
 }

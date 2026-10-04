@@ -14,4 +14,9 @@ public class DeliveryRequestResponseDto {
     private String destination;
     private Instant preferredDateTime;
     private Instant createdAt;
+    private String requestType;
+    private String vehicleType;
+    private Long estimatedWeight;
+    private String description;
+    private Long deliveryId; // null until the request is matched
 }

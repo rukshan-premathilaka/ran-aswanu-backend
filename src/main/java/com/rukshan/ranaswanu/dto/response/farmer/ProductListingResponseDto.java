@@ -16,6 +16,8 @@ public class ProductListingResponseDto {
     private Long listId;
     private Long farmerId;
     private String farmerName;
+    private String farmerProfilePicture; // "/files/..." or null
+    private String location;             // town or district, or null
     private String productName;
     private String category;
     private String description;

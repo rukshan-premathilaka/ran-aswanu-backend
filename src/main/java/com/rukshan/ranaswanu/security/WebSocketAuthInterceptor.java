@@ -1,6 +1,7 @@
 package com.rukshan.ranaswanu.security;
 
 import com.rukshan.ranaswanu.entities.User;
+import com.rukshan.ranaswanu.repository.ChatRepository;
 import com.rukshan.ranaswanu.repository.UserRepository;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -20,12 +21,16 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
     private final UserRepository userRepository;
+    private final ChatRepository chatRepository;
+
     public WebSocketAuthInterceptor(JwtUtil jwtUtil,
                                     UserDetailsService userDetailsService,
-                                    UserRepository userRepository) {
+                                    UserRepository userRepository,
+                                    ChatRepository chatRepository) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.userRepository = userRepository;
+        this.chatRepository = chatRepository;
     }
 
     @Override
@@ -36,6 +41,9 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
         }
         if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
             authorizeSubscription(accessor);
+        }
+        if (StompCommand.SEND.equals(accessor.getCommand()) && accessor.getUser() == null) {
+            throw new IllegalArgumentException("Please log in again.");
         }
         return message;
     }
@@ -69,6 +77,10 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
     private void authorizeSubscription(StompHeaderAccessor accessor) {
         String destination = accessor.getDestination();
+        if (destination != null && destination.startsWith("/topic/chat/")) {
+            authorizeChatSubscription(accessor, destination);
+            return;
+        }
         if (destination == null || !destination.startsWith("/topic/notifications/")) {
             return;
         }
@@ -88,6 +100,26 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                 .orElseThrow(() -> new IllegalArgumentException("Please log in again."));
         if (!user.getId().equals(requestedUserId)) {
             throw new IllegalArgumentException("You cannot subscribe to another user's notifications");
+        }
+    }
+
+    // Only the two people in a chat may subscribe to /topic/chat/{chatId}
+    private void authorizeChatSubscription(StompHeaderAccessor accessor, String destination) {
+        if (accessor.getUser() == null) {
+            throw new IllegalArgumentException("Please log in again.");
+        }
+
+        long chatId;
+        try {
+            chatId = Long.parseLong(destination.substring("/topic/chat/".length()));
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException("Invalid chat destination");
+        }
+
+        User user = userRepository.findByEmail(accessor.getUser().getName())
+                .orElseThrow(() -> new IllegalArgumentException("Please log in again."));
+        if (!chatRepository.isMember(chatId, user.getId())) {
+            throw new IllegalArgumentException("You cannot join this chat");
         }
     }
 

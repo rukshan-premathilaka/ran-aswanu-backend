@@ -72,6 +72,7 @@ public class UserService {
                 .name(requestData.getUsername())
                 .email(requestData.getEmail())
                 .password(passwordEncoder.encode(requestData.getPassword()))
+                .role("BUYER")   // default role; the user can change it later with PUT /api/me/role
                 .active(true)
                 .createdAt(new Date())
                 .build();

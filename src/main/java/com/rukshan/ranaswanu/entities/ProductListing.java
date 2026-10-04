@@ -82,6 +82,11 @@ public class ProductListing {
     private Instant updatedAt;
 
     // Set by an admin. A farmer cannot change it. true = hidden from buyers.
+    @Size(max = 100)
+    @Nationalized
+    @Column(name = "location", length = 100)
+    private String location;
+
     @Column(name = "admin_disabled", nullable = false)
     private boolean adminDisabled;
 

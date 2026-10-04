@@ -3,6 +3,7 @@ package com.rukshan.ranaswanu.dto.request.delivery;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -32,9 +33,14 @@ public class DeliveryRequestDto {
     @Positive(message = "Estimated weight must be above 0")
     private Long estimatedWeight;
 
-    @NotBlank(message = "Size is required")
+    // optional: the frontend no longer sends it (stored as N/A)
     @Size(max = 50, message = "Size must be at most 50 characters")
     private String size;
+
+    // optional: FARMER_REQUEST or VEHICLE_OFFER. If missing, it is chosen from the user's role.
+    @Pattern(regexp = "FARMER_REQUEST|VEHICLE_OFFER",
+             message = "Request type must be FARMER_REQUEST or VEHICLE_OFFER")
+    private String requestType;
 
     @Size(max = 500, message = "Description must be at most 500 characters")
     private String description;

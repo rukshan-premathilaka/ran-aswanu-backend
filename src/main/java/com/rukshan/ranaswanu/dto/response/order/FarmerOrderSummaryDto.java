@@ -18,6 +18,8 @@ public class FarmerOrderSummaryDto {
     private String contactNumber;
     private String orderStatus;
     private String paymentStatus;
+    private String paymentMethod;
+    private String deliveryAddress;
     private BigDecimal totalAmount;
     private Instant orderDate;
     private int itemCount;

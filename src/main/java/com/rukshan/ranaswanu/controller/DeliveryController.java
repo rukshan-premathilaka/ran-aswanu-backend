@@ -3,10 +3,12 @@ package com.rukshan.ranaswanu.controller;
 import com.rukshan.ranaswanu.dto.request.delivery.DeliveryRequestDto;
 import com.rukshan.ranaswanu.dto.request.delivery.DeliveryStatusRequestDto;
 import com.rukshan.ranaswanu.dto.request.delivery.JoinDeliveryRequestDto;
+import com.rukshan.ranaswanu.dto.response.delivery.AcceptDeliveryResponseDto;
 import com.rukshan.ranaswanu.dto.response.delivery.DeliveryMatchesResponseDto;
 import com.rukshan.ranaswanu.dto.response.delivery.DeliveryRequestResponseDto;
 import com.rukshan.ranaswanu.dto.response.delivery.DeliveryStatusResponseDto;
 import com.rukshan.ranaswanu.dto.response.delivery.JoinDeliveryResponseDto;
+import com.rukshan.ranaswanu.dto.response.delivery.OpenDeliveryRequestDto;
 import com.rukshan.ranaswanu.service.DeliveryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,22 @@ public class DeliveryController {
     public ResponseEntity<List<DeliveryRequestResponseDto>> getMyDeliveryRequests(
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(deliveryService.listMine(userDetails.getUsername()));
+    }
+
+    // Delivery board: other users' open items. type = VEHICLE_OFFER or FARMER_REQUEST
+    @GetMapping("/delivery-requests/open")
+    public ResponseEntity<List<OpenDeliveryRequestDto>> getOpenDeliveryRequests(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(required = false) String type) {
+        return ResponseEntity.ok(deliveryService.listOpen(userDetails.getUsername(), type));
+    }
+
+    // Delivery board: choose / accept another user's open item (no body)
+    @PostMapping("/delivery-requests/{requestId}/accept")
+    public ResponseEntity<AcceptDeliveryResponseDto> acceptDeliveryRequest(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long requestId) {
+        return ResponseEntity.ok(deliveryService.accept(userDetails.getUsername(), requestId));
     }
 
     @GetMapping("/delivery-requests/{requestId}/matches")
