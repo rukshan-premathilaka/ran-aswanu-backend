@@ -46,6 +46,14 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/me/roles/transport")
+    public ResponseEntity<RoleUpdateResponseDto> becomeTransport(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        RoleUpdateResponseDto response = userService.becomeTransport(userDetails.getUsername());
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping("/me/password")
     public ResponseEntity<MessageResponseDto> changePassword(
             @AuthenticationPrincipal UserDetails userDetails,

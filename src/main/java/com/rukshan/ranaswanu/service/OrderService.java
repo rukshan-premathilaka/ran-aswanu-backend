@@ -262,7 +262,8 @@ public class OrderService {
 
     private User requireAnyRole(String email, Set<String> roles, String deniedMessage) {
         User user = requireUser(email);
-        if (!roles.contains(user.getRole())) {
+        boolean allowed = roles.stream().anyMatch(user::hasRole);
+        if (!allowed) {
             throw new AccessDeniedException(deniedMessage);
         }
         return user;
@@ -279,7 +280,7 @@ public class OrderService {
 
     private User requireRole(String email, String role, String deniedMessage) {
         User user = requireUser(email);
-        if (!role.equals(user.getRole())) {
+        if (!user.hasRole(role)) {
             throw new AccessDeniedException(deniedMessage);
         }
         return user;

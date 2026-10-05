@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
@@ -15,7 +16,8 @@ public class AdminUserDto {
     private Long userId;
     private String username;
     private String email;
-    private String role;
+    private String role; // legacy primary role
+    private List<String> roles;
     private boolean active;
     private String phoneNumber;
     private Date createdAt;

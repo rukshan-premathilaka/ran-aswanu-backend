@@ -18,8 +18,12 @@ public interface UserRepository extends CrudRepository<User, Long>, JpaSpecifica
 
     // ---- admin: counts ----
     long countByActive(boolean active);
-    long countByRole(String role);
-    long countByRoleIsNull();
+
+    @Query("select count(distinct u) from User u join u.roles r where r.name = :role")
+    long countByRole(@Param("role") String role);
+
+    @Query("select count(u) from User u where u.roles is empty")
+    long countWithoutRoles();
 
     // from is included, to is NOT included
     @Query("select count(u) from User u where u.createdAt >= :from and u.createdAt < :to")

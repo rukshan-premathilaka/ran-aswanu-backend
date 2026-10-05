@@ -150,7 +150,7 @@ public class ProductListingService {
     private User requireFarmer(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-        if (!"FARMER".equals(user.getRole())) {
+        if (!user.hasRole("FARMER")) {
             throw new AccessDeniedException("Only farmers can manage product listings");
         }
         return user;

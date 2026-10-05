@@ -10,10 +10,12 @@ import com.rukshan.ranaswanu.dto.response.ProfilePictureResponseDto;
 import com.rukshan.ranaswanu.dto.response.RoleUpdateResponseDto;
 import com.rukshan.ranaswanu.dto.response.UserProfileDto;
 import com.rukshan.ranaswanu.entities.PasswordResetToken;
+import com.rukshan.ranaswanu.entities.Role;
 import com.rukshan.ranaswanu.entities.User;
 import com.rukshan.ranaswanu.exception.ConflictException;
 import com.rukshan.ranaswanu.exception.ResourceNotFoundException;
 import com.rukshan.ranaswanu.repository.PasswordResetTokenRepository;
+import com.rukshan.ranaswanu.repository.RoleRepository;
 import com.rukshan.ranaswanu.repository.UserRepository;
 import com.rukshan.ranaswanu.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,6 +39,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -60,6 +66,7 @@ public class UserService {
     // ---------------- AUTH ----------------
 
     // Creates a new account; email and username must be unique
+    @Transactional
     public void register(AuthRegistrationDto requestData) {
         if (userRepository.existsByEmail(requestData.getEmail())) {
             throw new ConflictException("Email already registered");
@@ -68,14 +75,16 @@ public class UserService {
             throw new ConflictException("Username already taken");
         }
 
+        Role buyerRole = getRoleEntity("BUYER");
         User user = User.builder()
                 .name(requestData.getUsername())
                 .email(requestData.getEmail())
                 .password(passwordEncoder.encode(requestData.getPassword()))
-                .role("BUYER")   // default role; the user can change it later with PUT /api/me/role
+                .role("BUYER") // legacy primary-role field; capabilities are stored in user_roles
                 .active(true)
                 .createdAt(new Date())
                 .build();
+        user.addRole(buyerRole);
         userRepository.save(user);
     }
 
@@ -195,26 +204,72 @@ public class UserService {
         return toProfileDto(user);
     }
 
-    // Lets the user pick FARMER, BUYER or TRANSPORT after registering
+    /**
+     * Preferred self-service action: add TRANSPORT capability without removing BUYER.
+     * Farmers are intentionally excluded from transport because the project business rule
+     * requires a delivery partner to be non-farmer.
+     */
+    @Transactional
+    public RoleUpdateResponseDto becomeTransport(String email) {
+        User user = findUserByEmail(email);
+        if (user.hasRole("ADMIN")) {
+            throw new IllegalArgumentException("Administrator accounts cannot become delivery partners.");
+        }
+        if (user.hasRole("FARMER")) {
+            throw new IllegalArgumentException("Farmers cannot become delivery partners.");
+        }
+
+        user.addRole(getRoleEntity("BUYER"));
+        boolean alreadyTransport = user.hasRole("TRANSPORT");
+        user.addRole(getRoleEntity("TRANSPORT"));
+        if (user.getRole() == null || user.getRole().isBlank()) {
+            user.setRole("BUYER");
+        }
+        userRepository.save(user);
+
+        return roleResponse(user, alreadyTransport
+                ? "You are already a delivery partner"
+                : "You are now a delivery partner");
+    }
+
+    /**
+     * Backward-compatible endpoint used by older frontend builds. It now manipulates
+     * the role set while preserving the current business rules. New code should call
+     * becomeTransport() for delivery onboarding.
+     */
+    @Transactional
     public RoleUpdateResponseDto updateUserRole(String email, String newRole) {
-        String normalizedRole = newRole.toUpperCase();
+        String normalizedRole = newRole == null ? "" : newRole.trim().toUpperCase(Locale.ROOT);
 
         if (!VALID_ROLES.contains(normalizedRole)) {
             throw new IllegalArgumentException("Invalid role. Allowed values: " + VALID_ROLES);
         }
 
         User user = findUserByEmail(email);
-        if ("ADMIN".equals(user.getRole())) {
+        if (user.hasRole("ADMIN")) {
             throw new IllegalArgumentException("Administrator accounts cannot change role here.");
         }
-        user.setRole(normalizedRole);
-        userRepository.save(user);
 
-        return RoleUpdateResponseDto.builder()
-                .userId(user.getId())
-                .role(user.getRole())
-                .message("Role updated")
-                .build();
+        if ("TRANSPORT".equals(normalizedRole)) {
+            return becomeTransport(email);
+        }
+
+        if ("FARMER".equals(normalizedRole)) {
+            if (user.hasRole("TRANSPORT")) {
+                throw new IllegalArgumentException("Delivery partners cannot become farmers.");
+            }
+            user.addRole(getRoleEntity("BUYER"));
+            user.addRole(getRoleEntity("FARMER"));
+            user.setRole("FARMER");
+        } else { // BUYER
+            user.addRole(getRoleEntity("BUYER"));
+            user.removeRole("FARMER");
+            user.removeRole("TRANSPORT");
+            user.setRole("BUYER");
+        }
+
+        userRepository.save(user);
+        return roleResponse(user, "Roles updated");
     }
 
     // Changes the password after checking the old one (400, not 401, so the frontend does not log out)
@@ -260,11 +315,34 @@ public class UserService {
                 .username(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole())
+                .roles(user.getRoles().stream()
+                        .map(Role::getName)
+                        .filter(name -> name != null && !name.isBlank())
+                        .sorted()
+                        .toList())
                 .active(user.isActive())
                 .phoneNumber(user.getPhoneNumber())
                 .address(user.getAddress())
                 .profilePictureUrl(user.getProfilePicture() != null ? "/files/" + user.getProfilePicture() : null)
                 .createdAt(user.getCreatedAt())
+                .build();
+    }
+
+    private Role getRoleEntity(String roleName) {
+        return roleRepository.findByName(roleName)
+                .orElseThrow(() -> new IllegalStateException("Role is not configured: " + roleName));
+    }
+
+    private RoleUpdateResponseDto roleResponse(User user, String message) {
+        return RoleUpdateResponseDto.builder()
+                .userId(user.getId())
+                .role(user.getRole())
+                .roles(user.getRoles().stream()
+                        .map(Role::getName)
+                        .filter(name -> name != null && !name.isBlank())
+                        .sorted()
+                        .toList())
+                .message(message)
                 .build();
     }
 }

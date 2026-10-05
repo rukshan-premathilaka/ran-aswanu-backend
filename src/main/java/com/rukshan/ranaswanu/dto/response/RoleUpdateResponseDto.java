@@ -5,12 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleUpdateResponseDto {
     private Long userId;
-    private String role;
+    private String role; // legacy primary role
+    private List<String> roles;
     private String message;
 }

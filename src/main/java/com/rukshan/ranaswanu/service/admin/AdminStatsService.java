@@ -47,7 +47,7 @@ public class AdminStatsService {
         for (String role : List.of("FARMER", "BUYER", "TRANSPORT", "ADMIN")) {
             byRole.add(new AdminSummaryDto.RoleCount(role, userRepository.countByRole(role)));
         }
-        byRole.add(new AdminSummaryDto.RoleCount("UNASSIGNED", userRepository.countByRoleIsNull()));
+        byRole.add(new AdminSummaryDto.RoleCount("UNASSIGNED", userRepository.countWithoutRoles()));
 
         AdminSummaryDto.UserCounts users = AdminSummaryDto.UserCounts.builder()
                 .total(totalUsers)

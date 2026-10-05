@@ -1,7 +1,9 @@
 package com.rukshan.ranaswanu.repository.spec;
 
+import com.rukshan.ranaswanu.entities.Role;
 import com.rukshan.ranaswanu.entities.User;
 import com.rukshan.ranaswanu.service.admin.AdminQueryUtil;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -34,7 +36,9 @@ public final class AdminUserSpecs {
                 all.add(cb.or(any.toArray(new Predicate[0])));
             }
             if (role != null) {
-                all.add(cb.equal(root.<String>get("role"), role));
+                Join<User, Role> roleJoin = root.join("roles");
+                all.add(cb.equal(roleJoin.<String>get("name"), role));
+                query.distinct(true);
             }
             if (active != null) {
                 all.add(cb.equal(root.<Boolean>get("active"), active));

@@ -105,7 +105,7 @@ public class DeliveryVehicleService {
     private User requireTransport(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-        if (!"TRANSPORT".equals(user.getRole())) {
+        if (!user.hasRole("TRANSPORT")) {
             throw new AccessDeniedException("Only transport users can manage vehicles");
         }
         return user;

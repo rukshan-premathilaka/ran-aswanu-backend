@@ -67,7 +67,7 @@ public class AdminUserService {
             if (target.getId().equals(admin.getId())) {
                 throw new IllegalArgumentException("You cannot disable your own account.");
             }
-            if ("ADMIN".equals(target.getRole())) {
+            if (target.hasRole("ADMIN")) {
                 throw new IllegalArgumentException("Administrator accounts cannot be disabled here.");
             }
         }
@@ -90,6 +90,7 @@ public class AdminUserService {
                 .username(u.getName())
                 .email(u.getEmail())
                 .role(u.getRole())
+                .roles(u.getRoles().stream().map(com.rukshan.ranaswanu.entities.Role::getName).sorted().toList())
                 .active(u.isActive())
                 .phoneNumber(u.getPhoneNumber())
                 .createdAt(u.getCreatedAt());

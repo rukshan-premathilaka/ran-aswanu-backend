@@ -72,18 +72,18 @@ public class DeliveryService {
 
         String requestType = request.getRequestType();
         if (requestType == null || requestType.isBlank()) {
-            requestType = "TRANSPORT".equals(user.getRole()) ? VEHICLE_OFFER
-                    : "BUYER".equals(user.getRole()) ? CUSTOMER_REQUEST
-                    : FARMER_REQUEST;
+            requestType = request.getOrderId() != null
+                    ? CUSTOMER_REQUEST
+                    : user.hasRole("TRANSPORT") ? VEHICLE_OFFER : CUSTOMER_REQUEST;
         }
 
         if (CUSTOMER_REQUEST.equals(requestType) && !isCustomerRole(user)) {
             throw new AccessDeniedException("Only buyers or farmers can create delivery requests");
         }
-        if (FARMER_REQUEST.equals(requestType) && !"FARMER".equals(user.getRole())) {
+        if (FARMER_REQUEST.equals(requestType) && !user.hasRole("FARMER")) {
             throw new AccessDeniedException("Only farmers can create farmer requests");
         }
-        if (VEHICLE_OFFER.equals(requestType) && !"TRANSPORT".equals(user.getRole())) {
+        if (VEHICLE_OFFER.equals(requestType) && !user.hasRole("TRANSPORT")) {
             throw new AccessDeniedException("Only transport users can offer vehicles");
         }
 
@@ -237,7 +237,7 @@ public class DeliveryService {
         String normalized = type == null ? CUSTOMER_REQUEST : type.trim().toUpperCase(Locale.ROOT);
 
         if (CUSTOMER_REQUEST.equals(normalized)) {
-            if (!"TRANSPORT".equals(me.getRole())) {
+            if (!me.hasRole("TRANSPORT")) {
                 throw new AccessDeniedException("Only transport users can view delivery requests to accept");
             }
             return transportationRequestRepository
@@ -248,7 +248,7 @@ public class DeliveryService {
         }
 
         if (FARMER_REQUEST.equals(normalized)) {
-            if (!"TRANSPORT".equals(me.getRole())) {
+            if (!me.hasRole("TRANSPORT")) {
                 throw new AccessDeniedException("Only transport users can view farmer requests");
             }
             return transportationRequestRepository
@@ -284,7 +284,7 @@ public class DeliveryService {
         }
 
         if (SHAREABLE_REQUEST_TYPES.contains(target.getRequestType())) {
-            if (!"TRANSPORT".equals(me.getRole())) {
+            if (!me.hasRole("TRANSPORT")) {
                 throw new AccessDeniedException("Only transport users can accept delivery requests");
             }
             if (assignment == null || assignment.getVehicleId() == null) {
@@ -355,7 +355,7 @@ public class DeliveryService {
 
         // Legacy vehicle-offer flow remains available so existing clients keep working.
         if (VEHICLE_OFFER.equals(target.getRequestType())) {
-            if (!"FARMER".equals(me.getRole())) {
+            if (!me.hasRole("FARMER")) {
                 throw new AccessDeniedException("Only farmers can choose a legacy vehicle offer");
             }
             if (!OPEN.equals(target.getRequestStatus()) || target.getDelivery() != null) {
@@ -607,7 +607,8 @@ public class DeliveryService {
     }
 
     private boolean isCustomerRole(User user) {
-        return "BUYER".equals(user.getRole()) || "FARMER".equals(user.getRole());
+        // Delivery partners retain buyer capability, so TRANSPORT users are valid customer requesters too.
+        return user.hasRole("BUYER") || user.hasRole("FARMER") || user.hasRole("TRANSPORT");
     }
 
     private String normalizeStatus(String status) {
@@ -660,7 +661,7 @@ public class DeliveryService {
 
     private User requireRole(String email, String role, String deniedMessage) {
         User user = requireUser(email);
-        if (!role.equals(user.getRole())) {
+        if (!user.hasRole(role)) {
             throw new AccessDeniedException(deniedMessage);
         }
         return user;
