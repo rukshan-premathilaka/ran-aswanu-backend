@@ -1,52 +1,47 @@
 package com.rukshan.ranaswanu.service;
 
+import com.rukshan.ranaswanu.entities.StoredFile;
 import com.rukshan.ranaswanu.exception.FileStorageException;
-import org.springframework.beans.factory.annotation.Value;
+import com.rukshan.ranaswanu.repository.StoredFileRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+// Stores uploaded images in the database (table stored_files) instead of the disk, because
+// Heroku's disk is erased on every restart/deploy. The returned relative path is still saved in
+// the other tables and served at /files/<path> by FileController, so nothing else changes.
 @Service
 public class FileStorageService {
 
-    @Value("${app.upload.dir}")
-    private String uploadDir;
+    @Autowired
+    private StoredFileRepository storedFileRepository;
 
-    private static final List<String> ALLOWED_TYPES = List.of(
-            "image/jpeg", "image/png", "image/webp", "image/jpg"
+    // allowed content type -> file extension (the extension never comes from the client's file name)
+    private static final Map<String, String> ALLOWED_TYPES = Map.of(
+            "image/jpeg", ".jpg",
+            "image/jpg", ".jpg",
+            "image/png", ".png",
+            "image/webp", ".webp"
     );
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
     /**
-     * Saves a file under a subfolder (e.g. "profile-pics", "product-images")
+     * Saves a file under a subfolder name (e.g. "profile-pics", "product-images")
      * and returns the relative path to store in the database.
      */
     public String storeFile(MultipartFile file, String subFolder) {
         validateFile(file);
 
         try {
-            Path targetDir = Paths.get(uploadDir, subFolder).toAbsolutePath().normalize();
-            Files.createDirectories(targetDir);
-
-            String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
-            String extension = getExtension(originalFilename);
-            String uniqueFilename = UUID.randomUUID() + extension;
-
-            Path targetPath = targetDir.resolve(uniqueFilename);
-            Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-
-            // Relative path stored in DB, served later via /files/**
-            return subFolder + "/" + uniqueFilename;
-
+            String contentType = file.getContentType().toLowerCase();
+            String relativePath = subFolder + "/" + UUID.randomUUID() + ALLOWED_TYPES.get(contentType);
+            storedFileRepository.save(new StoredFile(relativePath, contentType, file.getBytes()));
+            return relativePath;
         } catch (IOException e) {
             throw new FileStorageException("We could not save the file. Please try again.", e);
         }
@@ -54,13 +49,7 @@ public class FileStorageService {
 
     public void deleteFile(String relativePath) {
         if (relativePath == null || relativePath.isBlank()) return;
-
-        try {
-            Path filePath = Paths.get(uploadDir, relativePath).toAbsolutePath().normalize();
-            Files.deleteIfExists(filePath);
-        } catch (IOException e) {
-            throw new FileStorageException("We could not replace the old file. Please try again.", e);
-        }
+        storedFileRepository.deleteById(relativePath);
     }
 
     private void validateFile(MultipartFile file) {
@@ -73,17 +62,8 @@ public class FileStorageService {
         }
 
         String contentType = file.getContentType();
-        if (contentType == null || !ALLOWED_TYPES.contains(contentType.toLowerCase())) {
+        if (contentType == null || !ALLOWED_TYPES.containsKey(contentType.toLowerCase())) {
             throw new IllegalArgumentException("Only JPEG, PNG, and WEBP images are allowed");
         }
-    }
-
-    private String getExtension(String filename) {
-        if (filename == null || !filename.contains(".")) return "";
-        return filename.substring(filename.lastIndexOf("."));
-    }
-
-    private String originalFilenameSafe(MultipartFile file) {
-        return file != null ? file.getOriginalFilename() : "unknown";
     }
 }
