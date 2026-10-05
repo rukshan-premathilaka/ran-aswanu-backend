@@ -1,32 +1,30 @@
-# Deploy Ranaswanu backend to Heroku (Spring Boot + SQL Server)
+# Deploy Ranaswanu backend to Heroku (Spring Boot + PostgreSQL)
 
 ## 0. Before you start
-- **Heroku has NO SQL Server add-on** (its database is PostgreSQL only). Your project uses SQL Server
-  (Flyway scripts are T-SQL), so the database must be hosted somewhere else, for example **Azure SQL Database**
-  or any SQL Server host that is reachable from the internet.
-- On that host: create an empty database, and allow connections from outside. Heroku dynos have changing IPs,
-  so the SQL firewall must allow all IPs (0.0.0.0 - 255.255.255.255), or you must add a static-IP add-on to Heroku.
-  Use a strong database password.
-- Your JDBC URL looks like this (Azure example):
-  `jdbc:sqlserver://YOURSERVER.database.windows.net:1433;database=YOURDB;encrypt=true;trustServerCertificate=false;loginTimeout=30;`
+- The database is now **PostgreSQL** (Heroku Postgres add-on). SQL Server / Azure SQL is no longer used,
+  so you can delete that database and its firewall rules.
+- You do **not** set `DB_URL`, `DB_USERNAME` or `DB_PASSWORD` on Heroku. The Heroku Java buildpack creates
+  `JDBC_DATABASE_URL`, `JDBC_DATABASE_USERNAME` and `JDBC_DATABASE_PASSWORD` automatically when the Postgres
+  add-on is attached, and `application.yaml` reads them.
 - Gmail: turn on 2-Step Verification, then create an **App password** (16 letters). Use it as MAIL_PASSWORD.
 
-## 1. Create the app (terminal)
+## 1. Create the app + database (terminal)
 ```bash
 heroku login
 cd path/to/ranaswanu            # the folder that contains pom.xml
 heroku create YOUR-APP-NAME
 heroku buildpacks:set heroku/java
+heroku addons:create heroku-postgresql:essential-0
 ```
+(`essential-0` is the smallest paid plan. You can also add Heroku Postgres in the dashboard under
+**Resources**.)
 
 ## 2. Set Config Vars (Heroku web dashboard) - do this BEFORE the first push
 Dashboard -> your app -> **Settings** -> **Reveal Config Vars**.
+`DATABASE_URL` is already there (added by the add-on) - leave it alone.
 
 | KEY | VALUE |
 |---|---|
-| DB_URL | your JDBC URL (above) |
-| DB_USERNAME | database user |
-| DB_PASSWORD | database password |
 | JWT_SECRET | random text, at least 32 characters (different from local) |
 | MAIL_USERNAME | the Gmail address, e.g. ranaswanu.co@gmail.com |
 | MAIL_PASSWORD | Gmail App password (spaces are ignored) |
@@ -35,16 +33,20 @@ Dashboard -> your app -> **Settings** -> **Reveal Config Vars**.
 | ADMIN1_USERNAME / ADMIN1_EMAIL / ADMIN1_PASSWORD | first admin |
 | ADMIN2_... ADMIN3_... ADMIN4_... ADMIN5_... | admins 2 to 5, same three keys each |
 
+If you used the old SQL Server setup, **delete** `DB_URL`, `DB_USERNAME` and `DB_PASSWORD` from Config Vars
+(they would override the Heroku Postgres values).
+
 Admin passwords: at least 8 characters. Optional vars: `MAIL_FROM`, `SHOW_SQL`, `DB_POOL_SIZE`, `JWT_EXPIRATION_MS`.
 
 ## 3. Deploy (terminal)
 ```bash
 git add .
-git commit -m "Heroku deployment"
+git commit -m "Switch to PostgreSQL for Heroku"
 git push heroku master
 heroku logs --tail
 ```
-In the logs you should see Flyway applying V1 ... V21, then `ADMIN1: account created for ...` up to ADMIN5.
+In the logs you should see Flyway applying V1 ... V21 on an empty PostgreSQL database, then
+`ADMIN1: account created for ...` up to ADMIN5.
 
 ## 4. The 5 admin accounts
 - They are created automatically at server start from the ADMINn_* variables (never from the frontend).
@@ -53,7 +55,7 @@ In the logs you should see Flyway applying V1 ... V21, then `ADMIN1: account cre
 - After the first successful start you may delete the ADMINn_PASSWORD vars (passwords are stored hashed).
 - To change an admin password later: set the new ADMINn_PASSWORD plus `ADMIN_RESET_PASSWORDS=true`,
   let the app restart, then delete `ADMIN_RESET_PASSWORDS`.
-- Do NOT run `guid/seed_data.sql` on the server (it has public test accounts with weak passwords).
+- Do NOT run `guid/seed_data.sql` on the server (it is SQL Server syntax and has public test accounts).
 
 ## 5. Forgot-password email
 - Test: `curl -X POST https://YOUR-APP.herokuapp.com/api/auth/forgot-password -H "Content-Type: application/json" -d '{"email":"user@example.com"}'`
@@ -61,7 +63,7 @@ In the logs you should see Flyway applying V1 ... V21, then `ADMIN1: account cre
   (wrong app password, Gmail blocked the login, ...). Also check the Spam folder.
 
 ## 6. Uploaded images
-Heroku erases its disk on every restart, so images are now stored in the database (table `stored_files`)
+Heroku erases its disk on every restart, so images are stored in the database (table `stored_files`)
 and served at `/files/...` exactly as before.
 
 ## 7. Quick check
@@ -69,3 +71,16 @@ and served at `/files/...` exactly as before.
 curl -X POST https://YOUR-APP.herokuapp.com/api/auth/login -H "Content-Type: application/json" -d '{"email":"ADMIN1_EMAIL","password":"ADMIN1_PASSWORD"}'
 ```
 Expected: `{"token":"...","message":"Login successful"}`.
+
+## 8. Look inside the database (optional)
+```bash
+heroku pg:psql
+\dt
+select * from flyway_schema_history order by installed_rank;
+```
+
+## Running locally with PostgreSQL
+1. Install PostgreSQL and create an empty database: `createdb ranaswanu`
+2. In `src/main/resources/application-local.yaml` set `spring.datasource.url`
+   (`jdbc:postgresql://localhost:5432/ranaswanu`), `username` and `password`.
+3. Start the app - Flyway creates all tables.

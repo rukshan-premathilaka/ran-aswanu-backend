@@ -1,1 +1,1 @@
-ALTER TABLE field_plots ALTER COLUMN crop_id BIGINT NULL;
+ALTER TABLE field_plots ALTER COLUMN crop_id DROP NOT NULL;

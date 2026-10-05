@@ -5,14 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Nationalized;
 
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "customer_Reviews", schema = "dbo")
+@Table(name = "customer_Reviews")
 public class CustomerReview {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +24,6 @@ public class CustomerReview {
     // The column is NOT NULL, so an empty comment is saved as ""
     @Size(max = 500)
     @NotNull
-    @Nationalized
     @Column(name = "description", nullable = false, length = 500)
     private String description;
 

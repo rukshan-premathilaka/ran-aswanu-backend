@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -15,7 +14,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "crops", schema = "dbo")
+@Table(name = "crops")
 public class Crop {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,19 +23,16 @@ public class Crop {
 
     @Size(max = 255)
     @NotNull
-    @Nationalized
     @Column(name = "crop_name", nullable = false)
     private String cropName;
 
     @Size(max = 100)
     @NotNull
-    @Nationalized
     @Column(name = "category", nullable = false, length = 100)
     private String category;
 
     @Size(max = 50)
     @NotNull
-    @Nationalized
     @Column(name = "unit", nullable = false, length = 50)
     private String unit;
 
@@ -49,7 +45,6 @@ public class Crop {
     private Instant harvestDate;
 
     @Size(max = 1000)
-    @Nationalized
     @Column(name = "notes", length = 1000)
     private String notes;
 

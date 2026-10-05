@@ -11,10 +11,19 @@ import java.util.Optional;
 
 public interface UserRepository extends CrudRepository<User, Long>, JpaSpecificationExecutor<User> {
 
-    boolean existsByName(String name);
-    boolean existsByEmail(String email);
-    Optional<User> findByEmail(String email);
-    Optional<User> findByEmailOrName(String email, String name);
+    // PostgreSQL compares text case-sensitively (SQL Server did not), so these are done with lower()
+    // to keep login / duplicate checks working the same way as before.
+    @Query("select count(u) > 0 from User u where lower(u.name) = lower(:name)")
+    boolean existsByName(@Param("name") String name);
+
+    @Query("select count(u) > 0 from User u where lower(u.email) = lower(:email)")
+    boolean existsByEmail(@Param("email") String email);
+
+    @Query("select u from User u where lower(u.email) = lower(:email)")
+    Optional<User> findByEmail(@Param("email") String email);
+
+    @Query("select u from User u where lower(u.email) = lower(:email) or lower(u.name) = lower(:name)")
+    Optional<User> findByEmailOrName(@Param("email") String email, @Param("name") String name);
 
     // ---- admin: counts ----
     long countByActive(boolean active);

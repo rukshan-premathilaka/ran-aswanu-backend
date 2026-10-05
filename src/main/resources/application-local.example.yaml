@@ -6,7 +6,8 @@
 
 spring:
   datasource:
-    username: sa
+    url: jdbc:postgresql://localhost:5432/ranaswanu   # your local PostgreSQL database
+    username: postgres
     password: YOUR_SQL_SERVER_PASSWORD
   mail:
     password: ASK_TEAM_LEADER_FOR_GMAIL_APP_PASSWORD   # share privately, not in Git

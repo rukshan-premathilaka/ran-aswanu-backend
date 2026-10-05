@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Nationalized;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;
@@ -13,7 +12,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "deliveries", schema = "dbo")
+@Table(name = "deliveries")
 public class Delivery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +20,6 @@ public class Delivery {
     private Long id;
 
     @Column(name = "delivery_status", nullable = false, length = 20)
-    @Nationalized
     private String deliveryStatus;
 
     @Column(name = "assigned_date")
@@ -34,7 +32,6 @@ public class Delivery {
     private Instant actualDeliveryDate;
 
     @Size(max = 500)
-    @Nationalized
     @Column(name = "delivery_note", length = 500)
     private String deliveryNote;
 

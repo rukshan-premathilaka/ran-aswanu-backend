@@ -5,14 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Nationalized;
 
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "live_stocks", schema = "dbo")
+@Table(name = "live_stocks")
 public class LiveStock {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,12 +20,10 @@ public class LiveStock {
 
     @Size(max = 100)
     @NotNull
-    @Nationalized
     @Column(name = "category", nullable = false, length = 100)
     private String category;
 
     @Size(max = 100)
-    @Nationalized
     @Column(name = "breed", length = 100)
     private String breed;
 

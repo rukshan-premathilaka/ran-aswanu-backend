@@ -5,14 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Nationalized;
 
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "reminders", schema = "dbo")
+@Table(name = "reminders")
 public class Reminder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +23,6 @@ public class Reminder {
     private Instant reminderDate;
 
     @Size(max = 500)
-    @Nationalized
     @Column(name = "description", length = 500)
     private String description;
 

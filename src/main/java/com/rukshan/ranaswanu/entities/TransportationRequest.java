@@ -5,14 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Nationalized;
 
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "transportation_requests", schema = "dbo")
+@Table(name = "transportation_requests")
 public class TransportationRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,19 +19,16 @@ public class TransportationRequest {
     private Long id;
 
     @Size(max = 500)
-    @Nationalized
     @Column(name = "description", length = 500)
     private String description;
 
     @Size(max = 255)
     @NotNull
-    @Nationalized
     @Column(name = "pickup_location", nullable = false)
     private String pickupLocation;
 
     @Size(max = 255)
     @NotNull
-    @Nationalized
     @Column(name = "delivery_location", nullable = false)
     private String deliveryLocation;
 
@@ -42,7 +38,6 @@ public class TransportationRequest {
 
     @Size(max = 50)
     @NotNull
-    @Nationalized
     @Column(name = "vehicle_type", nullable = false, length = 50)
     private String vehicleType;
 
@@ -51,25 +46,21 @@ public class TransportationRequest {
     private Long estimatedWeight;
 
     @NotNull
-    @Nationalized
     @Column(name = "request_status", nullable = false, length = 20)
     private String requestStatus;
 
     @Size(max = 500)
-    @Nationalized
     @Column(name = "special_instructions", length = 500)
     private String specialInstructions;
 
     @Size(max = 50)
     @NotNull
-    @Nationalized
     @Column(name = "\"size\"", nullable = false, length = 50)
     private String size;
 
     // CUSTOMER_REQUEST (buyer/farmer needs delivery), FARMER_REQUEST/VEHICLE_OFFER are legacy types.
     @Size(max = 20)
     @NotNull
-    @Nationalized
     @Column(name = "request_type", nullable = false, length = 20)
     private String requestType;
 

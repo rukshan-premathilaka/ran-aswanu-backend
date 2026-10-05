@@ -6,14 +6,13 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Nationalized;
 
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "delivery_vehicles", schema = "dbo")
+@Table(name = "delivery_vehicles")
 public class DeliveryVehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,19 +21,16 @@ public class DeliveryVehicle {
 
     @Size(max = 100)
     @NotNull
-    @Nationalized
     @Column(name = "vehicle_name", nullable = false, length = 100)
     private String vehicleName;
 
     @Size(max = 50)
     @NotNull
-    @Nationalized
     @Column(name = "vehicle_type", nullable = false, length = 50)
     private String vehicleType;
 
     @Size(max = 50)
     @NotNull
-    @Nationalized
     @Column(name = "registration_number", nullable = false, length = 50, unique = true)
     private String registrationNumber;
 

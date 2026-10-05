@@ -1,7 +1,4 @@
 ALTER TABLE transportation_requests
-    ADD request_type NVARCHAR(20) NOT NULL
-        CONSTRAINT DF_transport_request_type DEFAULT 'FARMER_REQUEST';
-GO
+    ADD COLUMN request_type VARCHAR(20) NOT NULL DEFAULT 'FARMER_REQUEST';
 
-ALTER TABLE product_listings ADD location NVARCHAR(100) NULL;
-GO
+ALTER TABLE product_listings ADD COLUMN location VARCHAR(100) NULL;

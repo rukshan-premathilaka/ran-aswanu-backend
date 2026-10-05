@@ -1,3 +1,2 @@
-alter table users
-    add role varchar(50)
-go
+ALTER TABLE users
+    ADD COLUMN role VARCHAR(50);

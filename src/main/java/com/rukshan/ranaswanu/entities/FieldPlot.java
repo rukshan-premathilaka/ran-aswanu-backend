@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -14,7 +13,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
-@Table(name = "field_plots", schema = "dbo")
+@Table(name = "field_plots")
 public class FieldPlot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,13 +22,11 @@ public class FieldPlot {
 
     @Size(max = 255)
     @NotNull
-    @Nationalized
     @Column(name = "current_crop", nullable = false)
     private String currentCrop;
 
     @Size(max = 255)
     @NotNull
-    @Nationalized
     @Column(name = "crop_variety", nullable = false)
     private String cropVariety;
 
@@ -38,19 +35,15 @@ public class FieldPlot {
 
     @Size(max = 100)
     @NotNull
-    @Nationalized
     @Column(name = "growth_stage", nullable = false, length = 100)
     private String growthStage;
 
     @Size(max = 100)
     @NotNull
-    @Nationalized
     @Column(name = "health_condition", nullable = false, length = 100)
     private String healthCondition;
 
-    @Nationalized
-    @Lob
-    @Column(name = "field_logs")
+    @Column(name = "field_logs", columnDefinition = "text")
     private String fieldLogs;
 
     @NotNull

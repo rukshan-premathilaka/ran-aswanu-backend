@@ -1,26 +1,16 @@
-DECLARE @sql NVARCHAR(MAX);
+-- order_status / payment_status: BOOLEAN -> text ('PENDING', 'UNPAID', ...)
+ALTER TABLE orders ALTER COLUMN order_status DROP DEFAULT;
+ALTER TABLE orders ALTER COLUMN payment_status DROP DEFAULT;
 
-SELECT @sql = 'ALTER TABLE orders DROP CONSTRAINT ' + dc.name
-FROM sys.default_constraints dc
-JOIN sys.columns c ON c.default_object_id = dc.object_id
-WHERE dc.parent_object_id = OBJECT_ID('orders') AND c.name = 'order_status';
-IF @sql IS NOT NULL EXEC sp_executesql @sql;
-SET @sql = NULL;
+ALTER TABLE orders ALTER COLUMN order_status TYPE VARCHAR(20)
+    USING (CASE WHEN order_status THEN '1' ELSE '0' END);
+ALTER TABLE orders ALTER COLUMN payment_status TYPE VARCHAR(20)
+    USING (CASE WHEN payment_status THEN '1' ELSE '0' END);
 
-SELECT @sql = 'ALTER TABLE orders DROP CONSTRAINT ' + dc.name
-FROM sys.default_constraints dc
-JOIN sys.columns c ON c.default_object_id = dc.object_id
-WHERE dc.parent_object_id = OBJECT_ID('orders') AND c.name = 'payment_status';
-IF @sql IS NOT NULL EXEC sp_executesql @sql;
-GO
+ALTER TABLE orders ALTER COLUMN delivery_id DROP NOT NULL;
 
-ALTER TABLE orders ALTER COLUMN order_status   NVARCHAR(20) NOT NULL;
-ALTER TABLE orders ALTER COLUMN payment_status NVARCHAR(20) NOT NULL;
-ALTER TABLE orders ALTER COLUMN delivery_id    BIGINT NULL;
-GO
+ALTER TABLE orders ALTER COLUMN order_status SET DEFAULT 'PENDING';
+ALTER TABLE orders ALTER COLUMN payment_status SET DEFAULT 'UNPAID';
 
-ALTER TABLE orders ADD CONSTRAINT DF_orders_order_status   DEFAULT 'PENDING' FOR order_status;
-ALTER TABLE orders ADD CONSTRAINT DF_orders_payment_status DEFAULT 'UNPAID'  FOR payment_status;
-UPDATE orders SET order_status   = 'PENDING' WHERE order_status   IN ('0', '1');
-UPDATE orders SET payment_status = 'UNPAID'  WHERE payment_status IN ('0', '1');
-GO
+UPDATE orders SET order_status = 'PENDING' WHERE order_status IN ('0', '1');
+UPDATE orders SET payment_status = 'UNPAID' WHERE payment_status IN ('0', '1');

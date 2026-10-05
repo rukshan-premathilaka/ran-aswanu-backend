@@ -1,6 +1,5 @@
 ALTER TABLE users
-    ADD address varchar(255)
-GO
+    ADD COLUMN address VARCHAR(255);
 
 ALTER TABLE users
-    ADD phone_number varchar(255)
+    ADD COLUMN phone_number VARCHAR(255);
