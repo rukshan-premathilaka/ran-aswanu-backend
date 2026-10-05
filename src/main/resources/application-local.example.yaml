@@ -1,0 +1,15 @@
+# HOW TO USE
+# 1. Copy this file to:  src/main/resources/application-local.yaml
+# 2. Put YOUR OWN values below.
+# 3. application-local.yaml is in .gitignore - never commit it.
+# Spring loads it automatically (profile "local" is the default).
+
+spring:
+  datasource:
+    username: sa
+    password: YOUR_SQL_SERVER_PASSWORD
+  mail:
+    password: ASK_TEAM_LEADER_FOR_GMAIL_APP_PASSWORD   # share privately, not in Git
+
+jwt:
+  secret: any-random-text-at-least-32-characters-long-change-me

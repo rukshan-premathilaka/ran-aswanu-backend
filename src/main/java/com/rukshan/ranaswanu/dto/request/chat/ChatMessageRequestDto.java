@@ -1,4 +1,4 @@
-package com.rukshan.ranaswanu;
+package com.rukshan.ranaswanu.dto.request.chat;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,12 +7,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-public class User {
+@AllArgsConstructor
+public class ChatMessageRequestDto {
 
-    private int id;
-    private String name;
-    private String email;
-
+    private String content;
 }
