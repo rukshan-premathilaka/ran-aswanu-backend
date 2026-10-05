@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Instant;
 
-// Writes a Shape B error for errors raised before a controller is reached (401 / 403)
 public final class ApiErrorWriter {
 
     private ApiErrorWriter() {

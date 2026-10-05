@@ -11,7 +11,7 @@ public interface CustomerReviewRepository extends JpaRepository<CustomerReview, 
 
     boolean existsByOrderId(Long orderId);
 
-    // Reviews of one user, newest first (reviewer and order loaded in the same query)
+
     @Query("select r from CustomerReview r left join fetch r.reviewer left join fetch r.order " +
            "where r.user.id = :userId order by r.reviewDate desc, r.id desc")
     List<CustomerReview> findForUser(@Param("userId") Long userId);

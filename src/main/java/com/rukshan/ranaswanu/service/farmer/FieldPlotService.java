@@ -36,7 +36,6 @@ public class FieldPlotService {
                 .toList();
     }
 
-    // Creates a plot; the harvest record (cropId) is optional
     public FieldPlotResponseDto create(String farmerEmail, FieldPlotRequestDto requestData) {
         User farmer = requireUser(farmerEmail);
 
@@ -51,7 +50,6 @@ public class FieldPlotService {
         return toResponseDto(plot);
     }
 
-    // Updates a plot; the crop link changes only when a cropId is sent
     public FieldPlotResponseDto update(String farmerEmail, Long fieldPlotId, FieldPlotRequestDto requestData) {
         FieldPlot plot = findOwned(farmerEmail, fieldPlotId);
         if (requestData.getCropId() != null) {
@@ -67,7 +65,6 @@ public class FieldPlotService {
         fieldPlotRepository.delete(findOwned(farmerEmail, fieldPlotId));
     }
 
-    // Loads the farmer's own crop, or null when no cropId was sent
     private Crop findCropOrNull(Long cropId, User farmer) {
         if (cropId == null) {
             return null;

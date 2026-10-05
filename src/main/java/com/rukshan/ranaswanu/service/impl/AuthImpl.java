@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-// Loads the logged-in user and all of its authorities from the many-to-many user_roles table.
+
 @Service
 public class AuthImpl implements UserDetailsService {
 

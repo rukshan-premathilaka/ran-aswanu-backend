@@ -40,19 +40,19 @@ public class RatingService {
     public RatingResponseDto submit(String email, Long orderId, RatingRequestDto request) {
         User me = requireUser(email);
 
-        // 404 if the order does not exist
+
         Order order = orderRepository.findDetailById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
-        // 403 if the order belongs to another buyer
+
         if (!order.getUser().getId().equals(me.getId())) {
             throw new AccessDeniedException("Only the buyer of this order can rate it");
         }
-        // 400 if the order is not finished yet
+
         if (!"COMPLETED".equals(order.getOrderStatus())) {
             throw new IllegalArgumentException("You can only rate a completed order");
         }
-        // 409 if this order already has a rating
+
         if (reviewRepository.existsByOrderId(orderId)) {
             throw new ConflictException("You already rated this order");
         }
@@ -61,8 +61,8 @@ public class RatingService {
         Instant now = Instant.now();
 
         CustomerReview review = new CustomerReview();
-        review.setUser(farmer);       // the person being rated
-        review.setReviewer(me);       // the buyer
+        review.setUser(farmer);
+        review.setReviewer(me);
         review.setOrder(order);
         review.setRating(request.getScore());
         review.setDescription(request.getComment() == null ? "" : request.getComment().trim());
@@ -71,7 +71,7 @@ public class RatingService {
         review.setUpdatedAt(now);
 
         try {
-            // flush now so the unique index catches two requests arriving at the same time
+
             reviewRepository.saveAndFlush(review);
         } catch (DataIntegrityViolationException e) {
             throw new ConflictException("You already rated this order");

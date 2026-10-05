@@ -19,8 +19,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final WebSocketAuthInterceptor webSocketAuthInterceptor;
     private final WebSocketErrorHandler webSocketErrorHandler;
 
-    // Comma separated list. Local default keeps working; in production set
-    // APP_WEBSOCKET_ALLOWED_ORIGINS=https://your-frontend.vercel.app
     @Value("${app.websocket.allowed-origins:http://localhost:5173}")
     private String[] allowedOrigins;
 
@@ -30,7 +28,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         this.webSocketErrorHandler = webSocketErrorHandler;
     }
 
-    // Needed for STOMP heartbeats so proxies/load balancers do not close an idle socket.
     @Bean
     public TaskScheduler wsHeartbeatScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();

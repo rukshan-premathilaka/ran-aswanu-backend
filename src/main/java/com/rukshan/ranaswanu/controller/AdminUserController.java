@@ -21,7 +21,6 @@ public class AdminUserController {
     @Autowired
     private AdminUserService adminUserService;
 
-    // GET /api/admin/users?q=&role=&active=&from=2026-01-01&to=2026-12-31&page=0&size=20
     @GetMapping
     public ResponseEntity<PageResponseDto<AdminUserDto>> list(
             @RequestParam(required = false) String q,
@@ -39,7 +38,6 @@ public class AdminUserController {
         return ResponseEntity.ok(adminUserService.get(userId));
     }
 
-    // Body: { "active": false }  disables the account, { "active": true } enables it
     @PatchMapping("/{userId}/status")
     public ResponseEntity<AdminUserDto> setStatus(
             @AuthenticationPrincipal UserDetails userDetails,

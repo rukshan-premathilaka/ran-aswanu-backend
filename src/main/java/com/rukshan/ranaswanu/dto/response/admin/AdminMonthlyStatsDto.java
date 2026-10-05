@@ -15,15 +15,15 @@ public class AdminMonthlyStatsDto {
     private int year;
     private long totalNewUsers;
     private long totalNewProducts;
-    private List<Item> months;   // always 12 items, empty months have 0
+    private List<Item> months;
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Item {
-        private int month;       // 1 to 12
-        private String label;    // Jan, Feb ...
+        private int month;
+        private String label;
         private long newUsers;
         private long newProducts;
     }

@@ -22,7 +22,7 @@ public class CustomerReview {
     @Column(name = "review_date")
     private Instant reviewDate;
 
-    // The column is NOT NULL, so an empty comment is saved as ""
+
     @Size(max = 500)
     @NotNull
     @Nationalized

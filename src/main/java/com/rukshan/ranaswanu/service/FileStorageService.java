@@ -26,10 +26,6 @@ public class FileStorageService {
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-    /**
-     * Saves a file under a subfolder (e.g. "profile-pics", "product-images")
-     * and returns the relative path to store in the database.
-     */
     public String storeFile(MultipartFile file, String subFolder) {
         validateFile(file);
 

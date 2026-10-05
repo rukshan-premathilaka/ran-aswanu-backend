@@ -17,8 +17,7 @@ public final class AdminUserSpecs {
     private AdminUserSpecs() {
     }
 
-    // q = text typed in the search box (name, email, phone, or the exact user id)
-    // role / active / from / toExclusive may be null = not filtered
+
     public static Specification<User> filter(String q, String role, Boolean active,
                                              Instant from, Instant toExclusive) {
         return (root, query, cb) -> {

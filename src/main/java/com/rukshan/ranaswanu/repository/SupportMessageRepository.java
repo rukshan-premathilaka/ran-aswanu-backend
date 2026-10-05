@@ -14,7 +14,7 @@ public interface SupportMessageRepository extends JpaRepository<SupportMessage, 
 
     List<SupportMessage> findByUserIdOrderByCreatedAtDesc(Long userId);
 
-    // ---- admin: counts ----
+
     long countByUserId(Long userId);
 
     @Query("select count(m) from SupportMessage m where m.createdAt >= :from and m.createdAt < :to")

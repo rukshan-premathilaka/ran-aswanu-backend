@@ -20,7 +20,6 @@ public class AdminStatsController {
         return ResponseEntity.ok(adminStatsService.summary());
     }
 
-    // GET /api/admin/stats/monthly?year=2026   (year is optional, default = this year)
     @GetMapping("/monthly")
     public ResponseEntity<AdminMonthlyStatsDto> monthly(@RequestParam(required = false) Integer year) {
         return ResponseEntity.ok(adminStatsService.monthly(year));

@@ -30,7 +30,6 @@ public class FarmActivityService {
                 .toList();
     }
 
-    // A new task starts as "not done"
     public FarmActivityResponseDto create(String farmerEmail, FarmActivityRequestDto requestData) {
         User farmer = requireUser(farmerEmail);
 
@@ -45,7 +44,6 @@ public class FarmActivityService {
         return toResponseDto(activity);
     }
 
-    // Marks a task done or not done
     public FarmActivityResponseDto updateStatus(String farmerEmail, Long activityId, boolean done) {
         FarmActivity activity = findOwned(farmerEmail, activityId);
         activity.setActivityStatus(done);
@@ -58,7 +56,6 @@ public class FarmActivityService {
         farmActivityRepository.delete(findOwned(farmerEmail, activityId));
     }
 
-    // Finds a task of this farmer; someone else's task looks like "not found"
     private FarmActivity findOwned(String farmerEmail, Long activityId) {
         User farmer = requireUser(farmerEmail);
         return farmActivityRepository.findByIdAndUserId(activityId, farmer.getId())

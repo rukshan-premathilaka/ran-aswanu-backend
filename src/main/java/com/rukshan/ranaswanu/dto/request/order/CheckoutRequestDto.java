@@ -24,7 +24,6 @@ public class CheckoutRequestDto {
     @Pattern(regexp = "^[0-9+\\-\\s]{7,15}$", message = "Invalid phone number format")
     private String contactNumber;
 
-    // Card numbers are never accepted or stored
     @NotBlank(message = "Payment method is required")
     @Pattern(regexp = "CASH_ON_DELIVERY|BANK_TRANSFER",
              message = "Payment method must be CASH_ON_DELIVERY or BANK_TRANSFER")

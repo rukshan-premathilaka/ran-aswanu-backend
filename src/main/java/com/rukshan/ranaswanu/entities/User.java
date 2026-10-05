@@ -37,10 +37,7 @@ public class User {
     @Column(name = "is_active")
     private boolean active;
 
-    /**
-     * Legacy single-role column retained for backward compatibility with older
-     * queries/clients. New authorization/business logic uses {@link #roles}.
-     */
+
     @Column(name = "role")
     private String role;
 

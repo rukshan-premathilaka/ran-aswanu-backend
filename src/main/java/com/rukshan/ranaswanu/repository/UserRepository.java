@@ -16,7 +16,6 @@ public interface UserRepository extends CrudRepository<User, Long>, JpaSpecifica
     Optional<User> findByEmail(String email);
     Optional<User> findByEmailOrName(String email, String name);
 
-    // ---- admin: counts ----
     long countByActive(boolean active);
 
     @Query("select count(distinct u) from User u join u.roles r where r.name = :role")
@@ -25,7 +24,6 @@ public interface UserRepository extends CrudRepository<User, Long>, JpaSpecifica
     @Query("select count(u) from User u where u.roles is empty")
     long countWithoutRoles();
 
-    // from is included, to is NOT included
     @Query("select count(u) from User u where u.createdAt >= :from and u.createdAt < :to")
     long countCreatedBetween(@Param("from") Date from, @Param("to") Date to);
 

@@ -17,7 +17,7 @@ public class NotificationResponseDto {
     private String title;
     private String message;
 
-    // Without @JsonProperty, Jackson would write this field as "read" instead of "isRead"
+
     @JsonProperty("isRead")
     private boolean read;
 

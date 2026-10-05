@@ -27,7 +27,6 @@ public class DashboardService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + farmerEmail));
         Long id = farmer.getId();
 
-        // "This month" = from the 1st 00:00 (UTC) to the 1st of next month
         YearMonth thisMonth = YearMonth.now(ZoneOffset.UTC);
         Instant start = thisMonth.atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
         Instant end = thisMonth.plusMonths(1).atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();

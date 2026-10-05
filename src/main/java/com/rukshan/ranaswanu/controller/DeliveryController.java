@@ -45,7 +45,7 @@ public class DeliveryController {
         return ResponseEntity.ok(deliveryService.listMine(userDetails.getUsername()));
     }
 
-    // Delivery board: type CUSTOMER_REQUEST is used by transport users for both open and already-shared requests.
+
     @GetMapping("/delivery-requests/open")
     public ResponseEntity<List<OpenDeliveryRequestDto>> getOpenDeliveryRequests(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -53,7 +53,7 @@ public class DeliveryController {
         return ResponseEntity.ok(deliveryService.listOpen(userDetails.getUsername(), type));
     }
 
-    // Existing clients may omit the body; the new flow sends {"vehicleId": ...}.
+
     @PostMapping("/delivery-requests/{requestId}/accept")
     public ResponseEntity<AcceptDeliveryResponseDto> acceptDeliveryRequest(
             @AuthenticationPrincipal UserDetails userDetails,

@@ -63,7 +63,6 @@ public class ExpenseService {
         return toResponseDto(expense);
     }
 
-    // Deletes only the logged-in farmer's expense and returns 404 for someone else's record.
     public void delete(String farmerEmail, Long expenseId) {
         User farmer = requireUser(farmerEmail);
         Expense expense = expenseRepository.findByIdAndUserId(expenseId, farmer.getId())

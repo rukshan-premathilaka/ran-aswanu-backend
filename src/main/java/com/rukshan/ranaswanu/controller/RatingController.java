@@ -19,7 +19,6 @@ public class RatingController {
     @Autowired
     private RatingService ratingService;
 
-    // The buyer rates the farmer of a COMPLETED order (one rating per order)
     @PostMapping("/orders/{orderId}/rating")
     public ResponseEntity<RatingResponseDto> submitRating(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -30,7 +29,6 @@ public class RatingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // Average, total and the list of reviews received by one user
     @GetMapping("/users/{userId}/reviews")
     public ResponseEntity<UserReviewsResponseDto> getUserReviews(@PathVariable Long userId) {
         return ResponseEntity.ok(ratingService.listForUser(userId));

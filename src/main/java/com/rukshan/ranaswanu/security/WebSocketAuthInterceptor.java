@@ -36,10 +36,7 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        // IMPORTANT: use getAccessor(), NOT StompHeaderAccessor.wrap().
-        // wrap() builds a COPY of the headers, so accessor.setUser(...) was thrown away,
-        // the session never got a user, and the very next SUBSCRIBE failed with
-        // "Failed to send message to ExecutorSubscribableChannel[clientInboundChannel]".
+
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         if (accessor == null || accessor.getCommand() == null) {
             return message;
@@ -111,7 +108,6 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
         }
     }
 
-    // Only the two people in a chat may subscribe to /topic/chat/{chatId}
     private void authorizeChatSubscription(StompHeaderAccessor accessor, String destination) {
         if (accessor.getUser() == null) {
             throw new IllegalArgumentException("Please log in again.");

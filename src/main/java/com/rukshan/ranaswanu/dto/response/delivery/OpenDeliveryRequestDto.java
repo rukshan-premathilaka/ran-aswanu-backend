@@ -5,7 +5,6 @@ import lombok.Getter;
 
 import java.time.Instant;
 
-// One card on the delivery board: another user's open request or vehicle offer
 @Getter
 @Builder
 public class OpenDeliveryRequestDto {

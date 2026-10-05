@@ -32,7 +32,7 @@ public class SupportService {
         return toResponseDto(entity);
     }
 
-    // only my own messages, newest first
+
     public List<SupportMessageResponseDto> listMine(String email) {
         User user = requireUser(email);
         return supportMessageRepository.findByUserIdOrderByCreatedAtDesc(user.getId()).stream()

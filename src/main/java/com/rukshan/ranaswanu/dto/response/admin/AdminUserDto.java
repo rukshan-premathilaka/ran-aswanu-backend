@@ -16,13 +16,12 @@ public class AdminUserDto {
     private Long userId;
     private String username;
     private String email;
-    private String role; // legacy primary role
+    private String role;
     private List<String> roles;
     private boolean active;
     private String phoneNumber;
     private Date createdAt;
 
-    // only filled on "view one user"; null in the list
     private String address;
     private String profilePictureUrl;
     private Long productCount;

@@ -14,7 +14,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     List<Expense> findByUserIdOrderByExpenseDateDesc(Long userId);
     Optional<Expense> findByIdAndUserId(Long id, Long userId);
 
-    // dashboard: total spent between two moments (start inclusive, end exclusive)
+
     @Query("select coalesce(sum(e.amount), 0L) from Expense e " +
            "where e.user.id = :userId and e.expenseDate >= :start and e.expenseDate < :end")
     long sumAmountBetween(@Param("userId") Long userId, @Param("start") Instant start, @Param("end") Instant end);

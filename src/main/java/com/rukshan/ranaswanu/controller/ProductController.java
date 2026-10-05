@@ -68,7 +68,6 @@ public class ProductController {
             @PathVariable Long listId,
             @RequestBody ProductStatusRequestDto requestData) {
 
-        // A missing "published" must not silently become false
         if (requestData.getPublished() == null) {
             throw new IllegalArgumentException("published is required (true or false)");
         }

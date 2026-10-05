@@ -42,13 +42,12 @@ public class OrderService {
 
     // ---------------- CHECKOUT ----------------
 
-    /** One transaction: if anything fails, nothing is saved and no stock is taken. */
     @Transactional
     public CheckoutResponseDto checkout(String buyerEmail, CheckoutRequestDto request) {
         User buyer = requireAnyRole(buyerEmail, Set.of("BUYER", "FARMER", "TRANSPORT"),
                 "Only buyers, farmers or transport users can place orders");
 
-        // Same product twice in the cart -> add the quantities together
+
         Map<Long, BigDecimal> wanted = new LinkedHashMap<>();
         for (OrderItemRequestDto item : request.getItems()) {
             BigDecimal qty = item.getQuantity().setScale(2, RoundingMode.HALF_UP); // column is DECIMAL(18,2)
@@ -58,13 +57,13 @@ public class OrderService {
             wanted.merge(item.getListId(), qty, BigDecimal::add);
         }
 
-        // Lock the listings while we check and reduce the stock
+
         Map<Long, ProductListing> listings = new HashMap<>();
         for (ProductListing p : productListingRepository.findAllForUpdate(wanted.keySet())) {
             listings.put(p.getId(), p);
         }
 
-        // 1 + 2: every product must exist, be published, meet the minimum and have enough stock
+
         for (Map.Entry<Long, BigDecimal> e : wanted.entrySet()) {
             ProductListing p = listings.get(e.getKey());
             if (p == null || !Boolean.TRUE.equals(p.getListingStatus())
@@ -81,7 +80,7 @@ public class OrderService {
             }
         }
 
-        // 3: group by farmer (one order per farmer)
+
         Map<Long, List<ProductListing>> byFarmer = new LinkedHashMap<>();
         for (Long listId : wanted.keySet()) {
             ProductListing p = listings.get(listId);
@@ -92,7 +91,7 @@ public class OrderService {
         List<Order> created = new ArrayList<>();
 
         for (List<ProductListing> farmerProducts : byFarmer.values()) {
-            // 4: items with the price of right now
+
             List<OrderItem> items = new ArrayList<>();
             BigDecimal total = BigDecimal.ZERO;
             for (ProductListing p : farmerProducts) {
@@ -109,7 +108,6 @@ public class OrderService {
                 items.add(item);
                 total = total.add(subtotal);
 
-                // 5: take the stock
                 p.setAvailableStock(p.getAvailableStock().subtract(qty));
                 p.setUpdatedAt(now);
                 productListingRepository.save(p);
@@ -137,7 +135,6 @@ public class OrderService {
             created.add(order);
         }
 
-        // 6: tell each farmer (at the end, so a failure above never leaves a notification behind)
         for (Order order : created) {
             User farmer = farmerOf(order);
             notificationService.create(farmer.getId(), "New order",

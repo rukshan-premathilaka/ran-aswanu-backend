@@ -353,7 +353,7 @@ public class DeliveryService {
                     .build();
         }
 
-        // Legacy vehicle-offer flow remains available so existing clients keep working.
+
         if (VEHICLE_OFFER.equals(target.getRequestType())) {
             if (!me.hasRole("FARMER")) {
                 throw new AccessDeniedException("Only farmers can choose a legacy vehicle offer");

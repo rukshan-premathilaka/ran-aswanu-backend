@@ -50,8 +50,7 @@ public class AdminProductService {
         return toDto(requireProduct(id));
     }
 
-    // disabled = true hides the product from buyers and stops the farmer from re-publishing it.
-    // Repeating the same call is harmless.
+
     @Transactional
     public AdminProductDto setDisabled(Long id, boolean disabled) {
         ProductListing p = requireProduct(id);

@@ -17,7 +17,7 @@ public class AdminSupportController {
     @Autowired
     private AdminSupportService adminSupportService;
 
-    // GET /api/admin/support-messages?q=&userId=&from=&to=&page=0&size=20
+
     @GetMapping
     public ResponseEntity<PageResponseDto<AdminSupportMessageDto>> list(
             @RequestParam(required = false) String q,

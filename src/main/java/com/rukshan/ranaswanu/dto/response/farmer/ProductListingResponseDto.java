@@ -16,8 +16,8 @@ public class ProductListingResponseDto {
     private Long listId;
     private Long farmerId;
     private String farmerName;
-    private String farmerProfilePicture; // "/files/..." or null
-    private String location;             // town or district, or null
+    private String farmerProfilePicture;
+    private String location;
     private String productName;
     private String category;
     private String description;
@@ -28,8 +28,8 @@ public class ProductListingResponseDto {
     private Instant harvestedDate;
     private String deliveryOption;
     private String productImage;
-    private Boolean listingStatus; // true = published/live, false = draft/unpublished
-    private Boolean adminDisabled; // true = an admin disabled this product
+    private Boolean listingStatus;
+    private Boolean adminDisabled;
     private Instant createdAt;
     private Instant updatedAt;
 }

@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class RoleUpdateResponseDto {
     private Long userId;
-    private String role; // legacy primary role
+    private String role;
     private List<String> roles;
     private String message;
 }

@@ -12,7 +12,6 @@ public interface LiveStockRepository extends JpaRepository<LiveStock, Long> {
     List<LiveStock> findByUserId(Long userId);
     Optional<LiveStock> findByIdAndUserId(Long id, Long userId);
 
-    // dashboard: total number of animals (sum of "amount")
     @Query("select coalesce(sum(l.amount), 0L) from LiveStock l where l.user.id = :userId")
     long sumAmountByUserId(@Param("userId") Long userId);
 }

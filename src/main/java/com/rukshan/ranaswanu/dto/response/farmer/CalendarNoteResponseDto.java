@@ -10,6 +10,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CalendarNoteResponseDto {
-    private LocalDate date; // serialised as "2026-10-02"
-    private String note;    // "" when the day has no note
+    private LocalDate date;
+    private String note;
 }

@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AdminYearlyStatsDto {
-    private List<Item> years;   // from the first year with data up to the current year
+    private List<Item> years;
 
     @Data
     @Builder

@@ -35,10 +35,7 @@ public class NotificationService {
         this.messagingTemplate = messagingTemplate;
     }
 
-    /**
-     * Persists a notification and pushes it after the surrounding transaction commits.
-     * A notification failure never breaks the business transaction that created it.
-     */
+
     public void create(Long userId, String title, String message) {
         try {
             User recipient = userRepository.findById(userId).orElse(null);

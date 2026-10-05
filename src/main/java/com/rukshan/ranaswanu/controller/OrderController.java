@@ -21,7 +21,6 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    // Checkout: the cart lives in the browser and is sent once
     @PostMapping("/buyer/orders")
     public ResponseEntity<CheckoutResponseDto> checkout(
             @AuthenticationPrincipal UserDetails userDetails,

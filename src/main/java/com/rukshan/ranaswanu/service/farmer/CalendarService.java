@@ -17,7 +17,7 @@ import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.util.List;
 
-/** Calendar notes: one note per day per farmer, stored in the "reminders" table. */
+
 @Service
 public class CalendarService {
 

@@ -113,7 +113,7 @@ public class ProductListingService {
     }
 
     public ProductListingResponseDto getById(Long listId) {
-        // Unpublished (draft) products look the same as missing ones: 404
+
         ProductListing listing = productListingRepository.findById(listId)
                 .filter(this::isPubliclyVisible)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
@@ -122,8 +122,7 @@ public class ProductListingService {
 
     // ---------------- HELPERS ----------------
 
-    // A product is visible to buyers only if: the farmer published it, the admin did not disable it,
-    // and the farmer's account is active
+
     private boolean isPubliclyVisible(ProductListing l) {
         return Boolean.TRUE.equals(l.getListingStatus())
                 && !l.isAdminDisabled()

@@ -26,7 +26,7 @@ public class Order {
     @Column(name = "order_date_time", nullable = false)
     private Instant orderDateTime;
 
-    // PENDING | ACCEPTED | REJECTED | SHIPPED | COMPLETED
+
     @Size(max = 20)
     @NotNull
     @Nationalized
@@ -78,7 +78,6 @@ public class Order {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // optional: an order exists before a delivery is assigned
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "delivery_id")
     private Delivery delivery;

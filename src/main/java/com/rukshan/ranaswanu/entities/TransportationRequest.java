@@ -66,7 +66,6 @@ public class TransportationRequest {
     @Column(name = "\"size\"", nullable = false, length = 50)
     private String size;
 
-    // CUSTOMER_REQUEST (buyer/farmer needs delivery), FARMER_REQUEST/VEHICLE_OFFER are legacy types.
     @Size(max = 20)
     @NotNull
     @Nationalized

@@ -120,7 +120,6 @@ public class UserService {
         return jwtUtil.generateToken(userDetails);
     }
 
-    // Sends a reset link; stays silent for unknown emails so we do not leak who is registered
     public void forgotPassword(AuthForgotPasswordDto requestData) {
         Optional<User> userOpt = userRepository.findByEmail(requestData.getEmail());
 
@@ -144,7 +143,7 @@ public class UserService {
         emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
     }
 
-    // Sets a new password from an emailed token; writes two tables so it is one transaction
+
     @Transactional
     public void resetPassword(AuthResetPasswordDto requestData) {
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(requestData.getToken())
@@ -173,7 +172,7 @@ public class UserService {
         return toProfileDto(user);
     }
 
-    // Updates only the fields that were sent; username and email must stay unique
+
     public UserProfileDto updateUserProfile(String email, UpdateProfileDto requestData) {
         User user = findUserByEmail(email);
 
@@ -204,11 +203,6 @@ public class UserService {
         return toProfileDto(user);
     }
 
-    /**
-     * Preferred self-service action: add TRANSPORT capability without removing BUYER.
-     * Farmers are intentionally excluded from transport because the project business rule
-     * requires a delivery partner to be non-farmer.
-     */
     @Transactional
     public RoleUpdateResponseDto becomeTransport(String email) {
         User user = findUserByEmail(email);
@@ -232,11 +226,7 @@ public class UserService {
                 : "You are now a delivery partner");
     }
 
-    /**
-     * Backward-compatible endpoint used by older frontend builds. It now manipulates
-     * the role set while preserving the current business rules. New code should call
-     * becomeTransport() for delivery onboarding.
-     */
+
     @Transactional
     public RoleUpdateResponseDto updateUserRole(String email, String newRole) {
         String normalizedRole = newRole == null ? "" : newRole.trim().toUpperCase(Locale.ROOT);
@@ -272,7 +262,7 @@ public class UserService {
         return roleResponse(user, "Roles updated");
     }
 
-    // Changes the password after checking the old one (400, not 401, so the frontend does not log out)
+
     public void changePassword(String email, ChangePasswordDto requestData) {
         User user = findUserByEmail(email);
 

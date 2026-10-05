@@ -28,7 +28,7 @@ public class UserGlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(UserGlobalExceptionHandler.class);
 
-    // Shape A: { "fieldName": "message" }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -37,7 +37,7 @@ public class UserGlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 
-    // Shape B helper: { timestamp, status, error }
+
     private ResponseEntity<Map<String, Object>> error(HttpStatus status, String message) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", Instant.now().toString());
@@ -79,7 +79,7 @@ public class UserGlobalExceptionHandler {
 
     @ExceptionHandler({ResourceNotFoundException.class, UsernameNotFoundException.class})
     public ResponseEntity<Map<String, Object>> handleNotFound(RuntimeException ex) {
-        // For login we deliberately hide whether the user exists
+
         String message = (ex instanceof UsernameNotFoundException) ? "Invalid email or password" : ex.getMessage();
         return error(HttpStatus.NOT_FOUND, message);
     }
@@ -112,7 +112,7 @@ public class UserGlobalExceptionHandler {
         return error(HttpStatus.INTERNAL_SERVER_ERROR, "We could not send the email. Please try again later.");
     }
 
-    // Keeps the status of Spring's own errors (so they are not turned into 500 by the safety net below)
+
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Map<String, Object>> handleResponseStatus(ResponseStatusException ex) {
         HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
@@ -124,7 +124,7 @@ public class UserGlobalExceptionHandler {
         return error(status, "The request could not be processed. Please check it and try again.");
     }
 
-    // Last safety net: never show Java details to the user
+
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleUnexpected(RuntimeException ex) {
         log.error("Unexpected error", ex);

@@ -17,7 +17,7 @@ public final class AdminProductSpecs {
     private AdminProductSpecs() {
     }
 
-    // status: null | PUBLISHED | DRAFT | DISABLED (already validated by the service)
+
     public static Specification<ProductListing> filter(String q, String category, String status,
                                                        Long farmerId, Instant from, Instant toExclusive) {
         return (root, query, cb) -> {

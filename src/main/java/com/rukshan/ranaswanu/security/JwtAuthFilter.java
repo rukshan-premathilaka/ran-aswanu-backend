@@ -57,10 +57,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             } catch (Exception e) {
-                // Token is validly signed, but the user it points to no longer exists
-                // (deleted account, DB reset during dev, etc). Treat as unauthenticated
-                // rather than crashing the request — downstream security rules will
-                // correctly 403 protected routes and permitAll() routes still work fine.
+
             }
         }
 

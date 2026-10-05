@@ -24,10 +24,10 @@ public class AdminProductDto {
     private String deliveryOption;
     private String productImage;
     private Instant harvestedDate;
-    private Boolean listingStatus;      // farmer switch: true = published
-    private boolean adminDisabled;      // admin switch: true = hidden from buyers
+    private Boolean listingStatus;
+    private boolean adminDisabled;
     private Instant adminDisabledAt;
-    private String status;              // PUBLISHED | DRAFT | DISABLED (admin view of the two switches)
+    private String status;
     private Long farmerId;
     private String farmerName;
     private String farmerEmail;

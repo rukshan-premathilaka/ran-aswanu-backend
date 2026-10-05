@@ -21,7 +21,7 @@ public class CalendarController {
     @Autowired
     private CalendarService calendarService;
 
-    // GET /api/farmer/calendar?year=2026&month=10  (only days that have a note)
+
     @GetMapping
     public ResponseEntity<List<CalendarNoteResponseDto>> getMonth(
             @AuthenticationPrincipal UserDetails userDetails,

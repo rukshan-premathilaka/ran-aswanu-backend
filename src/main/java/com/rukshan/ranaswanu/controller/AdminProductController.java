@@ -19,7 +19,6 @@ public class AdminProductController {
     @Autowired
     private AdminProductService adminProductService;
 
-    // GET /api/admin/products?q=&category=&status=PUBLISHED|DRAFT|DISABLED&farmerId=&from=&to=&page=0&size=20
     @GetMapping
     public ResponseEntity<PageResponseDto<AdminProductDto>> list(
             @RequestParam(required = false) String q,
@@ -38,7 +37,6 @@ public class AdminProductController {
         return ResponseEntity.ok(adminProductService.get(listId));
     }
 
-    // Body: { "disabled": true } hides the product, { "disabled": false } allows it again
     @PatchMapping("/{listId}/status")
     public ResponseEntity<AdminProductDto> setStatus(
             @PathVariable Long listId,

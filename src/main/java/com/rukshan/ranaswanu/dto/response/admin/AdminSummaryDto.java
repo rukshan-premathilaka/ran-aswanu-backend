@@ -27,7 +27,7 @@ public class AdminSummaryDto {
         private long disabled;
         private long newThisMonth;
         private long newThisYear;
-        private List<RoleCount> byRole;   // includes UNASSIGNED for users who never picked a role
+        private List<RoleCount> byRole;
     }
 
     @Data
@@ -45,9 +45,9 @@ public class AdminSummaryDto {
     @AllArgsConstructor
     public static class ProductCounts {
         private long total;
-        private long published;       // farmer published and not admin-disabled
-        private long draft;           // not published and not admin-disabled
-        private long adminDisabled;   // published + draft + adminDisabled = total
+        private long published;
+        private long draft;
+        private long adminDisabled;
         private long newThisMonth;
         private long newThisYear;
     }

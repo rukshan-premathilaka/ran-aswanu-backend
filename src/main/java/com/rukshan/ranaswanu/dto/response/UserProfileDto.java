@@ -16,7 +16,7 @@ public class UserProfileDto {
     private Long userId;
     private String username;
     private String email;
-    private String role; // legacy primary role for backward compatibility
+    private String role;
     private List<String> roles;
     private boolean active;
     private String phoneNumber;
