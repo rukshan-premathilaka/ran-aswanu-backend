@@ -1,0 +1,4 @@
+# OPTIONAL (production only) - add to application-local.yaml or as env var APP_WEBSOCKET_ALLOWED_ORIGINS
+app:
+  websocket:
+    allowed-origins: https://your-frontend-domain.com,http://localhost:5173

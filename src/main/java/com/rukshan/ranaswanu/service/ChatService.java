@@ -22,16 +22,13 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
-    private final NotificationService notificationService;
 
     public ChatService(ChatRepository chatRepository,
                        MessageRepository messageRepository,
-                       UserRepository userRepository,
-                       NotificationService notificationService) {
+                       UserRepository userRepository) {
         this.chatRepository = chatRepository;
         this.messageRepository = messageRepository;
         this.userRepository = userRepository;
-        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -69,10 +66,10 @@ public class ChatService {
     }
 
     @Transactional
-    public void markRead(String email, Long chatId) {
+    public void markChatRead(String email, Long chatId) {
         User currentUser = requireUser(email);
-        Chat chat = requireParticipant(chatId, currentUser.getId());
-        messageRepository.markIncomingMessagesRead(chat.getId(), currentUser.getId());
+        requireParticipant(chatId, currentUser.getId());
+        messageRepository.markReadForUser(chatId, currentUser.getId());
     }
 
     @Transactional
@@ -98,14 +95,6 @@ public class ChatService {
 
         chat.setUpdatedAt(now);
         chatRepository.save(chat);
-
-        User recipient = chat.getUserOne().getId().equals(sender.getId()) ? chat.getUserTwo() : chat.getUserOne();
-        notificationService.create(
-                recipient.getId(),
-                "New chat message",
-                sender.getName() + " sent you a new message."
-        );
-
         return toMessageResponse(saved);
     }
 
@@ -129,7 +118,7 @@ public class ChatService {
         String lastMessage = messageRepository.findTopByChatIdOrderBySentAtDesc(chat.getId())
                 .map(Message::getContent)
                 .orElse(null);
-        long unreadCount = messageRepository.countUnreadForChat(chat.getId(), currentUserId);
+        long unreadCount = messageRepository.countUnreadForUser(chat.getId(), currentUserId);
         return ChatListResponseDto.builder()
                 .chatId(chat.getId())
                 .otherUserId(other.getId())
